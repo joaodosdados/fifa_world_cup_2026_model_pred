@@ -46,8 +46,22 @@ def load_models():
     return ensemble
 
 @st.cache_data(ttl=300)
+def auto_update_schedule():
+    """Automatically fetch and update schedule from FIFA"""
+    from src.data.auto_updater import run_auto_update
+    
+    # Run automatic update
+    update_result = run_auto_update()
+    
+    # Show update status in sidebar (if successful)
+    if update_result.get('success') and update_result.get('updated_matches', 0) > 0:
+        st.toast(f"✓ Updated {update_result['updated_matches']} matches from FIFA!", icon="⚽")
+    
+    return update_result
+
+@st.cache_data(ttl=300)
 def load_2026_schedule():
-    """Load 2026 World Cup schedule"""
+    """Load 2026 World Cup schedule (after auto-update)"""
     return pd.read_csv('data/2026_world_cup_schedule.csv')
 
 @st.cache_data(ttl=300)
@@ -59,6 +73,10 @@ def fetch_fifa_data():
 # 4. Initialize global session state
 if 'predictor' not in st.session_state:
     st.session_state.predictor = load_models()
+
+# Run auto-update BEFORE loading schedule
+if 'update_result' not in st.session_state:
+    st.session_state.update_result = auto_update_schedule()
 
 if 'schedule_2026' not in st.session_state:
     st.session_state.schedule_2026 = load_2026_schedule()
