@@ -2,6 +2,8 @@
 
 A machine learning-powered prediction system for the FIFA World Cup 2026, featuring an interactive dashboard built with Streamlit's native multipage architecture.
 
+![Dashboard Screenshot](assets/home.png)
+
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-1.58+-red.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
