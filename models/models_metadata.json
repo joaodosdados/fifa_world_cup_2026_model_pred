@@ -1,0 +1,74 @@
+{
+  "logistic_regression": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9311475409836065,
+      "cv_mean": 0.9242519043454209,
+      "cv_std": 0.008435919297356057
+    },
+    "description": "Logistic Regression trained on World Cup historical data",
+    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/logistic_regression.pkl",
+    "saved_at": "2026-06-18T16:49:59.472554",
+    "active": false
+  },
+  "random_forest": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9191256830601093,
+      "cv_mean": 0.911950094563178,
+      "cv_std": 0.0049313872544895655
+    },
+    "description": "Random Forest trained on World Cup historical data",
+    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/random_forest.pkl",
+    "saved_at": "2026-06-18T16:49:59.476021",
+    "active": false
+  },
+  "gradient_boosting": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9289617486338798,
+      "cv_mean": 0.9179643874324416,
+      "cv_std": 0.010131553698535639
+    },
+    "description": "Gradient Boosting trained on World Cup historical data",
+    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/gradient_boosting.pkl",
+    "saved_at": "2026-06-18T16:49:59.479017",
+    "active": false
+  },
+  "svm": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9333333333333333,
+      "cv_mean": 0.928630590627406,
+      "cv_std": 0.005880062225164243
+    },
+    "description": "SVM trained on World Cup historical data",
+    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/svm.pkl",
+    "saved_at": "2026-06-18T16:49:59.479330",
+    "active": true
+  },
+  "k-nearest_neighbors": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9169398907103825,
+      "cv_mean": 0.9135901863604763,
+      "cv_std": 0.0035067458607047275
+    },
+    "description": "K-Nearest Neighbors trained on World Cup historical data",
+    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/k-nearest_neighbors.pkl",
+    "saved_at": "2026-06-18T16:49:59.482114",
+    "active": false
+  },
+  "naive_bayes": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9333333333333333,
+      "cv_mean": 0.9256206409365119,
+      "cv_std": 0.005664106609278048
+    },
+    "description": "Naive Bayes trained on World Cup historical data",
+    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/naive_bayes.pkl",
+    "saved_at": "2026-06-18T16:49:59.482622",
+    "active": false
+  }
+}

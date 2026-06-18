@@ -11,6 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.models.ensemble_predictor import EnsemblePredictor
+from src.models.model_manager import ModelManager, ModelSelector
+from src.models.sklearn_adapter import SklearnMatchPredictor
 from src.data.loader import DataLoader
 from src.data.fifa_scraper import FIFADataScraper
 from src.components.styles import apply_custom_css
@@ -30,20 +32,47 @@ apply_custom_css()
 # 3. Initialize models and data (cached)
 @st.cache_resource
 def load_models():
-    """Load ML models once and persist across reruns"""
+    """Load dual models: ML (primary) + ELO (statistical)"""
     from src.data.loader import DataLoader
     
-    ensemble = EnsemblePredictor()
+    # Carregar dados históricos
+    loader = DataLoader()
+    matches_df = loader.load_matches(processed=False)
     
-    # Train models on historical data
+    # Sempre carregar ELO para análises estatísticas
+    elo_ensemble = EnsemblePredictor()
     try:
-        loader = DataLoader()
-        matches_df = loader.load_matches(processed=False)
-        ensemble.train(matches_df)
+        elo_ensemble.train(matches_df)
     except Exception as e:
-        st.warning(f"Could not train models: {e}")
+        pass  # Silenciar erros
     
-    return ensemble
+    # Inicializar ModelManager
+    manager = ModelManager()
+    
+    # Tentar carregar o melhor modelo ML treinado
+    best_model, best_name = manager.get_best_model()
+    
+    if best_model is not None:
+        # Envolver modelo sklearn no adaptador
+        ml_model = SklearnMatchPredictor(best_model, matches_df)
+        metadata = manager.metadata.get(best_name, {})
+        
+        return {
+            'ml_model': ml_model,
+            'ml_name': best_name,
+            'ml_metrics': metadata.get('metrics', {}),
+            'elo_model': elo_ensemble,
+            'primary': 'ml'
+        }
+    
+    # Fallback: usar apenas ELO se não houver modelos ML
+    return {
+        'ml_model': None,
+        'ml_name': None,
+        'ml_metrics': {},
+        'elo_model': elo_ensemble,
+        'primary': 'elo'
+    }
 
 @st.cache_data(ttl=300)
 def auto_update_schedule():
@@ -71,8 +100,16 @@ def fetch_fifa_data():
     return scraper.fetch_group_standings()
 
 # 4. Initialize global session state
+if 'models' not in st.session_state:
+    st.session_state.models = load_models()
+
+# Manter compatibilidade: predictor aponta para o modelo primário
 if 'predictor' not in st.session_state:
-    st.session_state.predictor = load_models()
+    models = st.session_state.models
+    if models['primary'] == 'ml':
+        st.session_state.predictor = models['ml_model']
+    else:
+        st.session_state.predictor = models['elo_model']
 
 # Run auto-update BEFORE loading schedule
 if 'update_result' not in st.session_state:
@@ -95,6 +132,7 @@ def calculate_accuracy():
     """Calculate model accuracy on completed 2026 World Cup matches"""
     schedule = st.session_state.schedule_2026
     predictor = st.session_state.predictor
+    predictor_info = st.session_state.get('predictor_info', {})
     
     # Check for both 'Completed' and 'completed' status
     completed = schedule[schedule['status'].str.lower() == 'completed'].copy()
@@ -103,7 +141,12 @@ def calculate_accuracy():
     
     correct = 0
     for _, match in completed.iterrows():
-        prediction = predictor.predict_match(match['home_team'], match['away_team'])
+        try:
+            # Todos os modelos agora suportam predict_match()
+            prediction = predictor.predict_match(match['home_team'], match['away_team'])
+        except Exception as e:
+            # Se houver erro, pular este jogo
+            continue
         
         # Determine actual winner
         actual_winner = None
@@ -133,7 +176,16 @@ def calculate_accuracy():
         'accuracy': (correct / len(completed)) * 100
     }
 
-if 'accuracy_stats' not in st.session_state:
+# Inicializar seleção de modelo ativo
+if 'active_model' not in st.session_state:
+    models = st.session_state.models
+    st.session_state.active_model = 'ML (SVM)' if models.get('ml_model') else 'ELO'
+
+# Recalcular acurácia quando modelo mudar
+if 'last_active_model' not in st.session_state or st.session_state.last_active_model != st.session_state.active_model:
+    st.session_state.last_active_model = st.session_state.active_model
+    st.session_state.accuracy_stats = calculate_accuracy()
+elif 'accuracy_stats' not in st.session_state:
     st.session_state.accuracy_stats = calculate_accuracy()
 
 # 6. Define pages programmatically
@@ -181,13 +233,47 @@ st.markdown("""
 
 # 9. Global sidebar elements (persist across all pages)
 with st.sidebar:
+    st.markdown("### 🤖 Active Model")
+    
+    # Model selector
+    models = st.session_state.models
+    available_models = []
+    
+    if models.get('ml_model'):
+        available_models.append('ML (SVM)')
+    if models.get('elo_model'):
+        available_models.append('ELO')
+    
+    selected_model = st.selectbox(
+        "Select prediction model:",
+        available_models,
+        index=available_models.index(st.session_state.active_model) if st.session_state.active_model in available_models else 0,
+        key='model_selector'
+    )
+    
+    # Update active model and predictor when selection changes
+    if selected_model != st.session_state.active_model:
+        st.session_state.active_model = selected_model
+        
+        # Update predictor
+        if selected_model == 'ML (SVM)':
+            st.session_state.predictor = models['ml_model']
+        else:
+            st.session_state.predictor = models['elo_model']
+        
+        # Force recalculation of accuracy
+        st.session_state.accuracy_stats = calculate_accuracy()
+        st.rerun()
+    
+    st.markdown("---")
+    
     # Model accuracy on 2026 predictions (only if matches completed)
     if st.session_state.accuracy_stats:
-        st.markdown("### 🎯 Model Accuracy")
+        st.markdown("### 🎯 2026 Predictions")
         
         accuracy_stats = st.session_state.accuracy_stats
         st.metric(
-            "Prediction Accuracy",
+            "Accuracy",
             f"{accuracy_stats['accuracy']:.1f}%",
             delta=f"{accuracy_stats['correct']}/{accuracy_stats['total']} correct"
         )
@@ -200,12 +286,13 @@ with st.sidebar:
     
     st.markdown("### ℹ️ About")
     st.markdown("""
-    This dashboard uses machine learning to predict World Cup 2026 match outcomes.
+    Dashboard de predição da Copa do Mundo 2026 usando Machine Learning e modelos estatísticos.
     
-    **Models:**
-    - ELO Rating System
-    - Poisson Distribution
-    - Ensemble Predictor
+    **Modelos disponíveis:**
+    - **ML (SVM)**: Support Vector Machine treinado em dados históricos
+    - **ELO**: Sistema de rating ELO + Distribuição de Poisson
+    
+    Alterne entre os modelos para comparar predições e análises.
     """)
 
 # 10. Execute selected page

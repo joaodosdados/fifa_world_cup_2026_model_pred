@@ -7,18 +7,79 @@ import plotly.graph_objects as go
 import pandas as pd
 from src.data.loader import DataLoader
 
-# Access global state
-ensemble = st.session_state.get("predictor")
-
-def show_model_analysis(ensemble):
-    """Display model analysis"""
+def show_ml_analysis(models):
+    """Display ML model analysis"""
+    st.markdown("## ML Model Analysis (SVM)")
     
-    st.markdown("## Model Analysis")
+    ml_model = models.get('ml_model')
+    ml_metrics = models.get('ml_metrics', {})
+    
+    # Model Performance
+    st.markdown("### 📊 Model Performance")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Training Accuracy", f"{ml_metrics.get('accuracy', 0):.1%}")
+    with col2:
+        st.metric("Cross-Validation", f"{ml_metrics.get('cv_mean', 0):.1%}")
+    with col3:
+        st.metric("CV Std Dev", f"{ml_metrics.get('cv_std', 0):.3f}")
+    
+    st.markdown("---")
+    
+    # Feature Importance (if available)
+    st.markdown("### 🎯 Model Features")
+    st.info("""
+    **Features utilizadas pelo modelo SVM:**
+    - Goals Scored (Home/Away)
+    - Goals Conceded (Home/Away)
+    - Win Rate (Home/Away)
+    - Home Advantage Factor
+    
+    O modelo foi treinado em dados históricos de Copas do Mundo.
+    """)
+    
+    # Training Data
+    st.markdown("### 📚 Training Data")
+    try:
+        loader = DataLoader()
+        matches_df = loader.load_matches(processed=False)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Matches", f"{len(matches_df):,}")
+        with col2:
+            if 'Year' in matches_df.columns:
+                st.metric("Period", f"{int(matches_df['Year'].min())}-{int(matches_df['Year'].max())}")
+        with col3:
+            if 'Home Team Name' in matches_df.columns:
+                unique_teams = pd.concat([matches_df['Home Team Name'], matches_df['Away Team Name']]).nunique()
+                st.metric("Teams", unique_teams)
+        
+        st.markdown("#### Sample Data")
+        display_cols = ['Year', 'Home Team Name', 'Away Team Name', 'Home Team Goals', 'Away Team Goals']
+        if all(col in matches_df.columns for col in display_cols):
+            st.dataframe(matches_df[display_cols].head(10), use_container_width=True)
+        else:
+            st.dataframe(matches_df.head(10), use_container_width=True)
+        
+    except Exception as e:
+        st.error(f"Error loading training data: {e}")
+
+def show_elo_analysis(models):
+    """Display ELO model analysis"""
+    st.markdown("## ELO Model Analysis")
+    
+    analysis_model = models.get("elo_model")
+    
+    if analysis_model is None:
+        st.error("ELO model not available")
+        return
     
     tab1, tab2, tab3, tab4 = st.tabs(["ELO Ratings", "Team Statistics", "Complete Rankings", "Training Data"])
     
     with tab1:
-        ratings_df = ensemble.elo_model.get_all_ratings()
+        ratings_df = analysis_model.elo_model.get_all_ratings()
         # Filter out None, nan, and invalid teams
         ratings_df = ratings_df[
             (ratings_df['team'] != 'nan') &
@@ -32,7 +93,7 @@ def show_model_analysis(ensemble):
     
     with tab2:
         team_stats = []
-        for team, stats in ensemble.poisson_model.team_stats.items():
+        for team, stats in analysis_model.poisson_model.team_stats.items():
             # Filter out None, nan, and invalid teams
             if team and team != 'nan' and team != 'None' and str(team).lower() != 'none':
                 team_stats.append({
@@ -47,7 +108,7 @@ def show_model_analysis(ensemble):
         st.dataframe(stats_df, use_container_width=True, height=600)
     
     with tab3:
-        ratings_df = ensemble.elo_model.get_all_ratings()
+        ratings_df = analysis_model.elo_model.get_all_ratings()
         # Filter out None, nan, and invalid teams
         ratings_df = ratings_df[
             (ratings_df['team'] != 'nan') &
@@ -67,193 +128,50 @@ def show_model_analysis(ensemble):
     
     with tab4:
         st.markdown("### Historical Training Data")
-        st.caption("Sample of World Cup matches used to train the prediction models")
+        st.caption("Sample of World Cup matches used to train the ELO and Poisson models")
         
         try:
             loader = DataLoader()
             matches_df = loader.load_matches(processed=False)
             
-            # Show statistics
-            col1, col2, col3, col4 = st.columns(4)
-            
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("Total Matches", f"{len(matches_df):,}")
-            
             with col2:
                 if 'Year' in matches_df.columns:
                     st.metric("Period", f"{int(matches_df['Year'].min())}-{int(matches_df['Year'].max())}")
-                else:
-                    st.metric("Period", "N/A")
-            
             with col3:
-                unique_teams = set()
                 if 'Home Team Name' in matches_df.columns:
-                    unique_teams.update(matches_df['Home Team Name'].unique())
-                if 'Away Team Name' in matches_df.columns:
-                    unique_teams.update(matches_df['Away Team Name'].unique())
-                st.metric("Teams", len(unique_teams))
+                    unique_teams = pd.concat([matches_df['Home Team Name'], matches_df['Away Team Name']]).nunique()
+                    st.metric("Teams", unique_teams)
             
-            with col4:
-                if 'Home Team Goals' in matches_df.columns and 'Away Team Goals' in matches_df.columns:
-                    total_goals = matches_df['Home Team Goals'].sum() + matches_df['Away Team Goals'].sum()
-                    st.metric("Total Goals", f"{int(total_goals):,}")
-                else:
-                    st.metric("Total Goals", "N/A")
-            
-            st.markdown("---")
-            
-            # Show sample data
-            st.markdown("#### Sample Matches")
-            
-            # Select relevant columns
-            display_cols = []
-            if 'Year' in matches_df.columns:
-                display_cols.append('Year')
-            if 'Stage' in matches_df.columns:
-                display_cols.append('Stage')
-            if 'Home Team Name' in matches_df.columns:
-                display_cols.append('Home Team Name')
-            if 'Home Team Goals' in matches_df.columns:
-                display_cols.append('Home Team Goals')
-            if 'Away Team Goals' in matches_df.columns:
-                display_cols.append('Away Team Goals')
-            if 'Away Team Name' in matches_df.columns:
-                display_cols.append('Away Team Name')
-            if 'Attendance' in matches_df.columns:
-                display_cols.append('Attendance')
-            
-            if display_cols:
-                sample_df = matches_df[display_cols].head(100)
-                st.dataframe(sample_df, use_container_width=True, height=400)
-                
-                # Download button
-                csv = matches_df.to_csv(index=False)
-                st.download_button(
-                    label="📥 Download Complete Training Data (CSV)",
-                    data=csv,
-                    file_name="world_cup_training_data.csv",
-                    mime="text/csv"
-                )
+            st.markdown("#### Sample Data")
+            display_cols = ['Year', 'Home Team Name', 'Away Team Name', 'Home Team Goals', 'Away Team Goals']
+            if all(col in matches_df.columns for col in display_cols):
+                st.dataframe(matches_df[display_cols].head(10), use_container_width=True)
             else:
-                st.warning("No displayable columns found in training data")
-                
+                st.dataframe(matches_df.head(10), use_container_width=True)
+            
         except Exception as e:
-            st.error(f"Could not load training data: {e}")
-            st.info("Training data should be located in data/raw/WorldCupMatches.csv")
+            st.error(f"Error loading training data: {e}")
 
-def show_fifa_standings(fifa_standings, ensemble):
-    """Display FIFA official standings"""
+def show_model_analysis(ensemble):
+    """Display model analysis based on active model"""
     
-    st.markdown("## FIFA Official Standings")
+    # Get active model info
+    active_model = st.session_state.get('active_model', 'ELO')
+    models = st.session_state.get("models", {})
     
-    if not fifa_standings:
-        st.warning("No FIFA standings data available. Using fallback data.")
-        st.info("The FIFA website uses dynamic JavaScript content. Real-time data fetching may be limited.")
-        
-        # Show fallback data
-        scraper = FIFADataScraper()
-        fifa_standings = scraper._get_fallback_standings()
-    
-    st.markdown("### Group Stage Standings")
-    st.caption("Live data from FIFA.com (updated every 5 minutes)")
-    
-    # Display standings in columns
-    groups = sorted(fifa_standings.keys())
-    cols_per_row = 3
-    
-    for i in range(0, len(groups), cols_per_row):
-        cols = st.columns(cols_per_row)
-        
-        for j, col in enumerate(cols):
-            if i + j < len(groups):
-                group = groups[i + j]
-                with col:
-                    display_group_standings(fifa_standings[group], group, ensemble)
-    
-    # Knockout bracket visualization
-    st.markdown("---")
-    st.markdown("### Knockout Stage Bracket")
-    st.info("Knockout bracket will be generated after group stage completion")
-    
-    # Show qualified teams if available
-    qualified_teams = []
-    for group, standings in fifa_standings.items():
-        if len(standings) >= 2:
-            # Top 2 teams qualify
-            top_teams = standings.head(2)
-            for _, team in top_teams.iterrows():
-                qualified_teams.append({
-                    'Group': group,
-                    'Team': team['team'],
-                    'Points': team['points'],
-                    'Position': 1 if _ == 0 else 2
-                })
-    
-    if qualified_teams:
-        st.markdown("#### Qualified Teams")
-        qualified_df = pd.DataFrame(qualified_teams)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Group Winners**")
-            winners = qualified_df[qualified_df['Position'] == 1].sort_values('Group')
-            for _, team in winners.iterrows():
-                flag = get_flag_html(team['Team'], size='w40', height=20)
-                st.markdown(f"**Group {team['Group']}:** {flag}{team['Team']} ({team['Points']} pts)", unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("**Runners-up**")
-            runners = qualified_df[qualified_df['Position'] == 2].sort_values('Group')
-            for _, team in runners.iterrows():
-                flag = get_flag_html(team['Team'], size='w40', height=20)
-                st.markdown(f"**Group {team['Group']}:** {flag}{team['Team']} ({team['Points']} pts)", unsafe_allow_html=True)
-
-def display_group_standings(standings_df, group, ensemble):
-    """Display standings for a specific group"""
-    
-    st.markdown(f"#### Group {group}")
-    
-    # Legend for status indicators
-    st.caption("Q = Qualified | P = Possible 3rd place | E = Eliminated")
-    
-    # Create standings table
-    for idx, row in standings_df.iterrows():
-        team = row['team']
-        flag = get_flag_html(team, size='w40', height=20)
-        points = row['points']
-        played = row['played']
-        goal_diff = row['goal_diff']
-        
-        # Position indicator
-        position = idx + 1
-        if position <= 2:
-            pos_status = "Q"  # Qualified
-            status_color = "🟢"
-        elif position == 3:
-            pos_status = "P"  # Possible 3rd place
-            status_color = "🟡"
-        else:
-            pos_status = "E"  # Eliminated
-            status_color = "🔴"
-        
-        # Display team row
-        col1, col2, col3 = st.columns([1, 4, 2])
-        
-        with col1:
-            st.markdown(f"**{position}. {pos_status}**")
-        
-        with col2:
-            st.markdown(f"{flag}**{team}**", unsafe_allow_html=True)
-        
-        with col3:
-            st.markdown(f"**{points}** pts ({played}J, {goal_diff:+d}GD)")
-    
-    st.divider()
-
+    # Show appropriate analysis
+    if active_model == 'ML (SVM)':
+        show_ml_analysis(models)
+    else:
+        show_elo_analysis(models)
 
 # Execute page
-if ensemble:
-    show_model_analysis(ensemble)
+predictor = st.session_state.get("predictor")
+
+if predictor:
+    show_model_analysis(predictor)
 else:
     st.error("Failed to load predictor")

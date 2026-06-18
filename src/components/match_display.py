@@ -4,7 +4,7 @@ Shared match display components
 import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
-from src.utils.team_names import get_team_abbreviation
+from src.utils.team_names import get_team_abbreviation, get_team_abbreviation_with_tooltip
 
 def display_match_card_compact(ensemble, match, show_prob, show_scores):
     """Display compact match card using Streamlit components"""
@@ -39,8 +39,8 @@ def display_match_card_compact(ensemble, match, show_prob, show_scores):
             col1, col2, col3 = st.columns([5, 1, 5])
             
             with col1:
-                team_a_abbr = get_team_abbreviation(team_a)
-                st.markdown(f"<div style='text-align: left;'><h4 style='margin-bottom: 0.5rem;'>{flag_a}{team_a_abbr}</h4></div>", unsafe_allow_html=True)
+                team_a_abbr = get_team_abbreviation_with_tooltip(team_a)
+                st.markdown(f"<div style='text-align: left;'><h4 style='margin-bottom: 0.5rem;'>{flag_a} {team_a_abbr}</h4></div>", unsafe_allow_html=True)
                 if status == 'Completed' and pd.notna(match['home_score']):
                     st.markdown(f"<div style='text-align: left;'>Score: <strong>{int(match['home_score'])}</strong></div>", unsafe_allow_html=True)
             
@@ -48,8 +48,8 @@ def display_match_card_compact(ensemble, match, show_prob, show_scores):
                 st.markdown("<div style='text-align: center;'><h4>vs</h4></div>", unsafe_allow_html=True)
             
             with col3:
-                team_b_abbr = get_team_abbreviation(team_b)
-                st.markdown(f"<div style='text-align: left;'><h4 style='margin-bottom: 0.5rem;'>{flag_b}{team_b_abbr}</h4></div>", unsafe_allow_html=True)
+                team_b_abbr = get_team_abbreviation_with_tooltip(team_b)
+                st.markdown(f"<div style='text-align: left;'><h4 style='margin-bottom: 0.5rem;'>{flag_b} {team_b_abbr}</h4></div>", unsafe_allow_html=True)
                 if status == 'Completed' and pd.notna(match['away_score']):
                     st.markdown(f"<div style='text-align: left;'>Score: <strong>{int(match['away_score'])}</strong></div>", unsafe_allow_html=True)
             
@@ -74,8 +74,8 @@ def display_match_card_compact(ensemble, match, show_prob, show_scores):
                     st.markdown("**Prediction**")
                     if predicted_winner != "Draw":
                         pred_flag = get_flag_html(predicted_winner, size='w40', height=20)
-                        pred_abbr = get_team_abbreviation(predicted_winner)
-                        st.markdown(f'<div style="padding: 10px; background-color: #d1ecf1; border-radius: 5px; color: #0c5460;">{pred_flag}<b>{pred_abbr}</b> ({winner_prob:.0%})</div>', unsafe_allow_html=True)
+                        pred_abbr = get_team_abbreviation_with_tooltip(predicted_winner)
+                        st.markdown(f'<div style="padding: 10px; background-color: #d1ecf1; border-radius: 5px; color: #0c5460;">{pred_flag} <b>{pred_abbr}</b> ({winner_prob:.0%})</div>', unsafe_allow_html=True)
                     else:
                         st.markdown(f'<div style="padding: 10px; background-color: #d1ecf1; border-radius: 5px; color: #0c5460;"><b>Draw</b> ({winner_prob:.0%})</div>', unsafe_allow_html=True)
                 

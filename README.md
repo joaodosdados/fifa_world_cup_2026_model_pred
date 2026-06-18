@@ -14,12 +14,14 @@ This project uses ensemble machine learning models to predict match outcomes for
 
 ### ✨ Key Features
 
-- **🤖 Ensemble Prediction Model**: Combines ELO Rating (40%) and Poisson Distribution (60%)
+- **🤖 Dual Model System**: Switch between ML (SVM 93.3% accuracy) and Statistical (ELO + Poisson) models
 - **📊 Interactive Dashboard**: Real-time visualization with native Streamlit multipage architecture
+- **🧠 Machine Learning**: Support Vector Machine trained on historical World Cup data
 - **📈 Historical Analysis**: Trained on 4,572 World Cup matches (1930-2014)
 - **🌐 Live Data Integration**: Fetches current standings and results from FIFA.com
-- **🎯 Accuracy Tracking**: Real-time model performance monitoring
+- **🎯 Real-time Accuracy**: Track model performance on 2026 World Cup matches
 - **🏆 Tournament Visualization**: Complete bracket with group stage and knockout rounds
+- **🔄 Model Comparison**: Compare predictions and analysis between different models
 
 ## 🚀 Quick Start
 
@@ -71,14 +73,17 @@ bolao_previsao/
 ├── app_pages/                      # Streamlit pages
 │   ├── tournament_bracket.py      # Tournament visualization
 │   ├── group_stage.py             # Group stage details
-│   ├── model_analysis.py          # Model analytics
+│   ├── model_analysis.py          # Model analytics (dynamic per model)
+│   ├── model_comparison.py        # Model comparison (legacy)
 │   └── about.py                   # Project information
 │
 ├── src/                            # Source code
 │   ├── models/                     # Prediction models
 │   │   ├── elo_predictor.py       # ELO rating system
 │   │   ├── poisson_predictor.py   # Poisson distribution model
-│   │   └── ensemble_predictor.py  # Ensemble model
+│   │   ├── ensemble_predictor.py  # Ensemble model (ELO + Poisson)
+│   │   ├── sklearn_adapter.py     # ML model adapter
+│   │   └── model_manager.py       # Model management system
 │   │
 │   ├── data/                       # Data processing
 │   │   ├── loader.py              # Data loading utilities
@@ -105,11 +110,16 @@ bolao_previsao/
 │   ├── predictions/                # Model predictions
 │   └── cache/                      # Cache directory
 │
+├── models/                         # Trained models directory
+│   └── models_metadata.json       # Model metadata and metrics
+│
 ├── scripts/                        # Utility scripts
-│   └── train_models.py            # Standalone model training
+│   ├── train_models.py            # Standalone model training
+│   └── optimize_ensemble.py       # Ensemble weight optimization
 │
 ├── notebooks/                      # Jupyter notebooks
-│   └── model_explanation.ipynb    # Model training explanation
+│   ├── model_explanation.ipynb    # Model training explanation
+│   └── model_training_analysis.ipynb # ML model training & comparison
 │
 ├── docs/                           # Documentation
 │   ├── CONTRIBUTING.md            # Contribution guidelines
@@ -121,24 +131,41 @@ bolao_previsao/
 
 ## 🤖 Model Architecture
 
-### Ensemble Predictor
+### Dual Model System
 
-The system uses an ensemble approach combining two complementary models:
+The system offers two prediction approaches that you can switch between:
 
-#### 1. ELO Rating System (40% weight)
-- **Purpose**: Measures relative team strength
-- **K-factor**: 32 (determines rating volatility)
-- **Home Advantage**: 100 points
-- **Initial Rating**: 1500 for all teams
-- **Updates**: Dynamic after each match
+#### 1. Machine Learning Model (Primary) - SVM
+- **Type**: Support Vector Machine (SVM)
+- **Accuracy**: 93.3% on test data
+- **Cross-Validation**: 92.9% (5-fold CV)
+- **Features** (7 total):
+  - Goals Scored (Home/Away)
+  - Goals Conceded (Home/Away)
+  - Win Rate (Home/Away)
+  - Home Advantage Factor
+- **Training**: Scikit-learn with RBF kernel
+- **Use Case**: Best for match outcome predictions
 
-#### 2. Poisson Distribution Model (60% weight)
-- **Purpose**: Predicts goal probabilities
-- **Features**:
-  - Attack strength analysis
-  - Defense strength analysis
-  - Historical performance patterns
-- **Output**: Expected goals and most likely scores
+#### 2. Statistical Model (Alternative) - ELO + Poisson
+- **Type**: Ensemble of ELO Rating (40%) and Poisson Distribution (60%)
+- **ELO Component**:
+  - K-factor: 32 (rating volatility)
+  - Home Advantage: 100 points
+  - Initial Rating: 1500 for all teams
+  - Dynamic updates after each match
+- **Poisson Component**:
+  - Attack/Defense strength analysis
+  - Expected goals calculation
+  - Most likely score prediction
+- **Use Case**: Best for statistical analysis and team rankings
+
+### Model Management
+
+- **Automatic Selection**: System loads the best trained model on startup
+- **Manual Switching**: Toggle between ML and Statistical models in the sidebar
+- **Real-time Accuracy**: Track each model's performance on 2026 matches
+- **Model Persistence**: Trained models saved with metadata for reuse
 
 ### Training Data
 
@@ -164,11 +191,16 @@ The system uses an ensemble approach combining two complementary models:
    - Prediction accuracy indicators
    - Color-coded result boxes
 
-3. **📈 Model Analysis**
-   - ELO ratings (top 20 teams)
-   - Team statistics (attack/defense)
-   - Complete rankings
-   - Training data insights with CSV download
+3. **📈 Model Analysis** (Dynamic per active model)
+   - **ML Model (SVM)**:
+     - Model performance metrics
+     - Feature importance
+     - Training data statistics
+   - **Statistical Model (ELO)**:
+     - ELO ratings (top 20 teams)
+     - Team statistics (attack/defense)
+     - Complete rankings
+     - Training data insights
 
 4. **ℹ️ About**
    - Project information
@@ -178,8 +210,9 @@ The system uses an ensemble approach combining two complementary models:
 
 ### Sidebar Features
 
-- **🎯 Model Accuracy**: Real-time prediction accuracy tracking (appears when matches are completed)
-- **ℹ️ About**: Quick model information
+- **🤖 Active Model**: Dropdown to switch between ML (SVM) and ELO models
+- **🎯 2026 Predictions**: Real-time accuracy tracking on completed matches
+- **ℹ️ About**: Model information and usage guide (in Portuguese)
 
 ### Real-time Features
 
@@ -225,9 +258,12 @@ To update match results manually:
 ## 📖 Documentation
 
 For detailed documentation, see:
-- [Model Explanation Notebook](notebooks/model_explanation.ipynb) - Detailed model training process
+- [Model Training & Analysis](notebooks/model_training_analysis.ipynb) - ML model training and comparison
+- [Model Explanation Notebook](notebooks/model_explanation.ipynb) - Statistical model details
+- [Model Selection Guide](docs/MODEL_SELECTION_GUIDE.md) - How to choose and train models
 - [Training Script](scripts/train_models.py) - Standalone model training
-- [FIFA API Integration Guide](docs/FIFA_API_INTEGRATION.md) - External API options and comparison
+- [Ensemble Optimization](scripts/optimize_ensemble.py) - Optimize ensemble weights
+- [FIFA API Integration Guide](docs/FIFA_API_INTEGRATION.md) - External API options
 - [Contributing Guidelines](docs/CONTRIBUTING.md) - How to contribute
 
 ## 🤝 Contributing
@@ -263,12 +299,14 @@ This project is open source and available under the MIT License.
 
 ## 🔮 Future Enhancements
 
+- [ ] Deep Learning models (Neural Networks)
 - [ ] Integrate commercial APIs for enhanced predictions (API-Football)
 - [ ] Monte Carlo simulation for tournament outcomes
 - [ ] Player-level statistics integration
 - [ ] Mobile-responsive design improvements
-- [ ] Multi-language support
+- [ ] Multi-language support (currently Portuguese sidebar)
 - [ ] Advanced team form analysis
+- [ ] Automated model retraining pipeline
 
 ---
 

@@ -104,6 +104,23 @@ def get_team_abbreviation(team_name):
     """
     return TEAM_ABBREVIATIONS.get(team_name, team_name[:3].upper())
 
+def get_team_abbreviation_with_tooltip(team_name):
+    """
+    Get TV-style abbreviation with HTML tooltip showing full name.
+    
+    Parameters:
+    -----------
+    team_name : str
+        Full team name
+    
+    Returns:
+    --------
+    str
+        HTML string with abbreviation and tooltip
+    """
+    abbr = get_team_abbreviation(team_name)
+    return f'<span title="{team_name}" style="cursor: help; border-bottom: 1px dotted #666;">{abbr}</span>'
+
 def get_team_display_name(team_name, use_abbreviation=True):
     """
     Get display name for a team (abbreviation or full name).
