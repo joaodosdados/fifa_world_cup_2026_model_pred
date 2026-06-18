@@ -82,7 +82,11 @@ bolao_previsao/
 │   │
 │   ├── data/                       # Data processing
 │   │   ├── loader.py              # Data loading utilities
-│   │   └── fifa_scraper.py        # FIFA.com data scraper
+│   │   ├── fifa_scraper.py        # FIFA.com data scraper (legacy)
+│   │   ├── fifa_scraper_selenium.py # Selenium-based scraper
+│   │   ├── auto_updater.py        # Automatic data updater
+│   │   ├── fifa_api_client.py     # FIFA Official API client (reference)
+│   │   └── api_football_client.py # API-Football client (reference)
 │   │
 │   ├── components/                 # UI components
 │   │   ├── match_display.py       # Match visualization
@@ -108,7 +112,8 @@ bolao_previsao/
 │   └── model_explanation.ipynb    # Model training explanation
 │
 ├── docs/                           # Documentation
-│   └── CONTRIBUTING.md            # Contribution guidelines
+│   ├── CONTRIBUTING.md            # Contribution guidelines
+│   └── FIFA_API_INTEGRATION.md    # API integration guide
 │
 └── assets/                         # Static assets
     └── profile.png                # Developer profile image
@@ -178,16 +183,24 @@ The system uses an ensemble approach combining two complementary models:
 
 ### Real-time Features
 
-- Live FIFA data integration (5-minute cache)
-- Model accuracy tracking on completed matches
-- Prediction vs reality comparison
-- Interactive visualizations with Plotly
+- **Automatic Data Updates**: Fetches latest results from FIFA.com every 5 minutes
+- **Selenium Web Scraping**: Handles dynamic JavaScript-rendered content
+- **Model Accuracy Tracking**: Real-time performance monitoring on completed matches
+- **Prediction vs Reality**: Side-by-side comparison of predictions and actual results
+- **Interactive Visualizations**: Dynamic charts with Plotly
 
 ## 🔧 Configuration
 
-### Data Update Frequency
+### Automatic Data Updates
 
-The dashboard automatically refreshes data every 5 minutes. To force an immediate update:
+The system automatically fetches the latest match results from FIFA.com:
+
+- **Update Frequency**: Every 5 minutes (TTL cache)
+- **Auto-run on Startup**: Updates run automatically when launching the app
+- **Notification**: Toast message shows when new data is fetched
+- **Fallback**: Uses sample data if FIFA.com is unavailable
+
+To force an immediate update:
 1. Click the menu (☰) in the top-right corner
 2. Select "Clear cache"
 3. The page will reload with fresh data
@@ -205,14 +218,16 @@ To update match results manually:
 - **[Pandas](https://pandas.pydata.org/)** - Data manipulation and analysis
 - **[NumPy](https://numpy.org/)** - Numerical computing
 - **[Plotly](https://plotly.com/)** - Interactive visualizations
+- **[Selenium](https://www.selenium.dev/)** - Browser automation for dynamic content scraping
+- **[BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/)** - HTML parsing
 - **[Requests](https://requests.readthedocs.io/)** - HTTP library for data fetching
-- **[BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/)** - Web scraping
 
 ## 📖 Documentation
 
 For detailed documentation, see:
 - [Model Explanation Notebook](notebooks/model_explanation.ipynb) - Detailed model training process
 - [Training Script](scripts/train_models.py) - Standalone model training
+- [FIFA API Integration Guide](docs/FIFA_API_INTEGRATION.md) - External API options and comparison
 - [Contributing Guidelines](docs/CONTRIBUTING.md) - How to contribute
 
 ## 🤝 Contributing
@@ -242,16 +257,18 @@ This project is open source and available under the MIT License.
 
 ## 🐛 Known Issues
 
-- FIFA web scraper currently uses fallback data (FIFA.com structure may have changed)
+- Selenium scraper uses fallback data when FIFA.com structure changes
 - Some team names may need manual mapping for historical data compatibility
+- Chrome/Chromium required for Selenium scraper (auto-installed via webdriver-manager)
 
 ## 🔮 Future Enhancements
 
-- [ ] Real-time FIFA API integration
+- [ ] Integrate commercial APIs for enhanced predictions (API-Football)
 - [ ] Monte Carlo simulation for tournament outcomes
 - [ ] Player-level statistics integration
 - [ ] Mobile-responsive design improvements
 - [ ] Multi-language support
+- [ ] Advanced team form analysis
 
 ---
 
