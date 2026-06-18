@@ -9,7 +9,8 @@ from src.data.loader import DataLoader
 
 def show_ml_analysis(models):
     """Display ML model analysis"""
-    st.markdown("## ML Model Analysis (SVM)")
+    model_name = models.get('ml_name', 'svm').upper()
+    st.markdown(f"## ML Model Analysis ({model_name})")
     
     ml_model = models.get('ml_model')
     ml_metrics = models.get('ml_metrics', {})
@@ -29,15 +30,37 @@ def show_ml_analysis(models):
     
     # Feature Importance (if available)
     st.markdown("### 🎯 Model Features")
-    st.info("""
-    **Features utilizadas pelo modelo SVM:**
-    - Goals Scored (Home/Away)
-    - Goals Conceded (Home/Away)
-    - Win Rate (Home/Away)
-    - Home Advantage Factor
+    model_name = models.get('ml_name', 'svm')
     
-    O modelo foi treinado em dados históricos de Copas do Mundo.
-    """)
+    # Check if it's an ensemble model
+    if model_name == 'ensemble_top3':
+        ensemble_models = ml_metrics.get('ensemble_models', ['SVM', 'Naive Bayes', 'Logistic Regression'])
+        st.info(f"""
+        **Ensemble Voting Classifier:**
+        
+        Este modelo combina as predições de 3 modelos usando votação por maioria:
+        - {ensemble_models[0]}
+        - {ensemble_models[1]}
+        - {ensemble_models[2]}
+        
+        **Features utilizadas por cada modelo:**
+        - Goals Scored (Home/Away)
+        - Goals Conceded (Home/Away)
+        - Win Rate (Home/Away)
+        - Home Advantage Factor
+        
+        O ensemble foi treinado em dados históricos de Copas do Mundo.
+        """)
+    else:
+        st.info(f"""
+        **Features utilizadas pelo modelo {model_name.upper()}:**
+        - Goals Scored (Home/Away)
+        - Goals Conceded (Home/Away)
+        - Win Rate (Home/Away)
+        - Home Advantage Factor
+        
+        O modelo foi treinado em dados históricos de Copas do Mundo.
+        """)
     
     # Training Data
     st.markdown("### 📚 Training Data")
@@ -163,7 +186,7 @@ def show_model_analysis(ensemble):
     models = st.session_state.get("models", {})
     
     # Show appropriate analysis
-    if active_model == 'ML (SVM)':
+    if active_model and active_model.startswith('ML ('):
         show_ml_analysis(models)
     else:
         show_elo_analysis(models)

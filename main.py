@@ -179,7 +179,12 @@ def calculate_accuracy():
 # Inicializar seleção de modelo ativo
 if 'active_model' not in st.session_state:
     models = st.session_state.models
-    st.session_state.active_model = 'ML (SVM)' if models.get('ml_model') else 'ELO'
+    if models.get('ml_model'):
+        # Usar o nome real do modelo carregado
+        model_name = models.get('ml_name', 'svm')
+        st.session_state.active_model = f'ML ({model_name})'
+    else:
+        st.session_state.active_model = 'ELO'
 
 # Recalcular acurácia quando modelo mudar
 if 'last_active_model' not in st.session_state or st.session_state.last_active_model != st.session_state.active_model:
@@ -240,7 +245,9 @@ with st.sidebar:
     available_models = []
     
     if models.get('ml_model'):
-        available_models.append('ML (SVM)')
+        # Usar o nome real do modelo carregado
+        model_name = models.get('ml_name', 'unknown')
+        available_models.append(f'ML ({model_name})')
     if models.get('elo_model'):
         available_models.append('ELO')
     
@@ -256,7 +263,7 @@ with st.sidebar:
         st.session_state.active_model = selected_model
         
         # Update predictor
-        if selected_model == 'ML (SVM)':
+        if selected_model and selected_model.startswith('ML ('):
             st.session_state.predictor = models['ml_model']
         else:
             st.session_state.predictor = models['elo_model']
@@ -285,12 +292,20 @@ with st.sidebar:
         st.markdown("---")
     
     st.markdown("### ℹ️ About")
-    st.markdown("""
+    
+    # Mostrar informação sobre o modelo ML atual
+    ml_info = ""
+    if models.get('ml_model'):
+        model_name = models.get('ml_name', 'unknown')
+        ml_metrics = models.get('ml_metrics', {})
+        accuracy = ml_metrics.get('accuracy', 0) * 100
+        ml_info = f"- **ML ({model_name})**: Machine Learning model com {accuracy:.1f}% de acurácia\n    "
+    
+    st.markdown(f"""
     Dashboard de predição da Copa do Mundo 2026 usando Machine Learning e modelos estatísticos.
     
     **Modelos disponíveis:**
-    - **ML (SVM)**: Support Vector Machine treinado em dados históricos
-    - **ELO**: Sistema de rating ELO + Distribuição de Poisson
+    {ml_info}- **ELO**: Sistema de rating ELO + Distribuição de Poisson
     
     Alterne entre os modelos para comparar predições e análises.
     """)

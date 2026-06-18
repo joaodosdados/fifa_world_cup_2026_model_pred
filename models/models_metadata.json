@@ -8,7 +8,7 @@
     },
     "description": "Logistic Regression trained on World Cup historical data",
     "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/logistic_regression.pkl",
-    "saved_at": "2026-06-18T16:49:59.472554",
+    "saved_at": "2026-06-18T18:01:27.511592",
     "active": false
   },
   "random_forest": {
@@ -20,7 +20,7 @@
     },
     "description": "Random Forest trained on World Cup historical data",
     "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/random_forest.pkl",
-    "saved_at": "2026-06-18T16:49:59.476021",
+    "saved_at": "2026-06-18T18:01:27.514822",
     "active": false
   },
   "gradient_boosting": {
@@ -32,7 +32,7 @@
     },
     "description": "Gradient Boosting trained on World Cup historical data",
     "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/gradient_boosting.pkl",
-    "saved_at": "2026-06-18T16:49:59.479017",
+    "saved_at": "2026-06-18T18:01:27.519370",
     "active": false
   },
   "svm": {
@@ -44,8 +44,8 @@
     },
     "description": "SVM trained on World Cup historical data",
     "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/svm.pkl",
-    "saved_at": "2026-06-18T16:49:59.479330",
-    "active": true
+    "saved_at": "2026-06-18T18:01:27.519955",
+    "active": false
   },
   "k-nearest_neighbors": {
     "type": "sklearn",
@@ -56,7 +56,7 @@
     },
     "description": "K-Nearest Neighbors trained on World Cup historical data",
     "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/k-nearest_neighbors.pkl",
-    "saved_at": "2026-06-18T16:49:59.482114",
+    "saved_at": "2026-06-18T18:01:27.520486",
     "active": false
   },
   "naive_bayes": {
@@ -68,7 +68,29 @@
     },
     "description": "Naive Bayes trained on World Cup historical data",
     "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/naive_bayes.pkl",
-    "saved_at": "2026-06-18T16:49:59.482622",
+    "saved_at": "2026-06-18T18:01:27.520764",
     "active": false
+  },
+  "ensemble_top3": {
+    "type": "sklearn",
+    "metrics": {
+      "accuracy": 0.9355191256830601,
+      "cv_score": 0.9267142846463786,
+      "cv_std": 0.0064072829031587035,
+      "model_type": "Ensemble (Top 3)",
+      "description": "Ensemble Voting: SVM + Naive Bayes + Logistic Regression com 93.6% de acur\u00e1cia",
+      "training_date": "2026-06-18T18:10:13.860343",
+      "features": 7,
+      "training_samples": 3657,
+      "ensemble_models": [
+        "SVM",
+        "Naive Bayes",
+        "Logistic Regression"
+      ]
+    },
+    "description": "",
+    "path": "models/ensemble_top3.pkl",
+    "saved_at": "2026-06-18T18:10:13.860938",
+    "active": true
   }
 }
