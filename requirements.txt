@@ -1,0 +1,21 @@
+# Core Dependencies
+streamlit>=1.58.0
+pandas==2.1.0
+numpy==1.24.3
+
+# Visualization
+plotly==5.17.0
+matplotlib==3.7.2
+seaborn==0.12.2
+
+# Web Scraping
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# Jupyter Notebook
+jupyter==1.0.0
+notebook==7.0.3
+ipykernel==6.25.2
+
+# Utilities
+python-dotenv==1.0.0
