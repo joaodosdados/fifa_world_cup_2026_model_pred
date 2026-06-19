@@ -17,6 +17,7 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 import sklearn
+from scipy.stats import randint, uniform
 from sklearn.base import clone
 from sklearn.ensemble import (
     GradientBoostingClassifier,
@@ -25,7 +26,11 @@ from sklearn.ensemble import (
 )
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.model_selection import TimeSeriesSplit, cross_val_score
+from sklearn.model_selection import (
+    RandomizedSearchCV,
+    TimeSeriesSplit,
+    cross_val_score,
+)
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
@@ -95,6 +100,76 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
         ),
         "naive_bayes": GaussianNB(),
     }
+
+
+# Distribuições de busca para RandomizedSearchCV. Os nomes dos parâmetros
+# usam o prefixo do step do pipeline (ex: "logisticregression__C") quando o
+# estimador é um sklearn.pipeline.Pipeline, e o nome direto quando não é.
+PARAM_DISTRIBUTIONS: Dict[str, Dict[str, Any]] = {
+    "logistic_regression": {
+        "logisticregression__C": uniform(0.01, 10),
+        "logisticregression__solver": ["lbfgs", "newton-cg"],
+    },
+    "random_forest": {
+        "n_estimators": randint(150, 700),
+        "max_depth": [None, 4, 6, 8, 12, 16],
+        "min_samples_leaf": randint(1, 6),
+        "min_samples_split": randint(2, 10),
+        "max_features": ["sqrt", "log2", None],
+    },
+    "gradient_boosting": {
+        "n_estimators": randint(80, 400),
+        "learning_rate": uniform(0.01, 0.19),
+        "max_depth": randint(2, 5),
+        "subsample": uniform(0.6, 0.4),
+        "min_samples_leaf": randint(1, 6),
+    },
+    "svm": {
+        "svc__C": uniform(0.1, 20),
+        "svc__gamma": ["scale", "auto"],
+        "svc__kernel": ["rbf", "poly", "sigmoid"],
+    },
+    "k-nearest_neighbors": {
+        "kneighborsclassifier__n_neighbors": randint(3, 25),
+        "kneighborsclassifier__weights": ["uniform", "distance"],
+        "kneighborsclassifier__p": [1, 2],
+    },
+    # naive_bayes não tem hiperparâmetros que valham a pena buscar para este
+    # dataset; é deixado fora da busca de propósito.
+}
+
+
+def tune_estimator(
+    model_id: str,
+    estimator: Any,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    cv_folds: int,
+    n_iter: int,
+    random_state: int,
+) -> Any:
+    """Run a temporally-aware RandomizedSearchCV and return the best estimator."""
+    param_distributions = PARAM_DISTRIBUTIONS.get(model_id)
+    if not param_distributions:
+        return estimator
+
+    cv = TimeSeriesSplit(n_splits=cv_folds)
+    search = RandomizedSearchCV(
+        estimator=clone(estimator),
+        param_distributions=param_distributions,
+        n_iter=n_iter,
+        cv=cv,
+        scoring="accuracy",
+        random_state=random_state,
+        n_jobs=-1,
+        error_score="raise",
+    )
+    search.fit(X_train, y_train)
+    print(
+        f"  melhores params ({model_id}): {search.best_params_} "
+        f"| cv={search.best_score_:.1%}"
+    )
+    return search.best_estimator_
 
 
 def temporal_split(
@@ -178,7 +253,14 @@ def create_top3_ensemble(
 
 def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
     """Run the complete training pipeline and atomically publish artifacts."""
-    matches = DataLoader(data_dir=str(args.data_dir)).load_matches(processed=False)
+    loader = DataLoader(data_dir=str(args.data_dir))
+    if args.data_source == "international":
+        matches = loader.load_international_matches(
+            include_friendlies=not args.no_friendlies,
+            min_year=args.min_year,
+        )
+    else:
+        matches = loader.load_matches(processed=False)
     X, y, context = build_temporal_training_data(matches)
     X_train, X_test, y_train, y_test, split_index = temporal_split(
         X, y, args.test_size
@@ -199,6 +281,18 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
 
     for model_id, estimator in estimators.items():
         print(f"Treinando {MODEL_LABELS[model_id]}...")
+        if args.tune and model_id in PARAM_DISTRIBUTIONS:
+            print(f"  buscando hiperparâmetros ({args.tune_iter} combinações)...")
+            estimator = tune_estimator(
+                model_id,
+                estimator,
+                X_train,
+                y_train,
+                args.cv_folds,
+                args.tune_iter,
+                args.random_state,
+            )
+            estimators[model_id] = estimator
         evaluation = evaluate_estimator(
             model_id,
             estimator,
@@ -372,6 +466,28 @@ def parse_args() -> argparse.Namespace:
         help="Diretório que contém data/raw/WorldCupMatches.csv.",
     )
     parser.add_argument(
+        "--data-source",
+        choices=["worldcup", "international"],
+        default="worldcup",
+        help=(
+            "'worldcup' usa apenas data/raw/WorldCupMatches.csv (836 jogos). "
+            "'international' usa data/raw/international_results.csv, com "
+            "milhares de jogos incluindo eliminatórias e amistosos "
+            "(rode scripts/fetch_external_data.py antes)."
+        ),
+    )
+    parser.add_argument(
+        "--no-friendlies",
+        action="store_true",
+        help="Com --data-source international, exclui amistosos.",
+    )
+    parser.add_argument(
+        "--min-year",
+        type=int,
+        default=None,
+        help="Com --data-source international, ano mínimo a considerar.",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=PROJECT_ROOT / "models",
@@ -389,6 +505,20 @@ def parse_args() -> argparse.Namespace:
         "--no-ensemble",
         action="store_true",
         help="Não treina o ensemble com os três melhores modelos.",
+    )
+    parser.add_argument(
+        "--tune",
+        action="store_true",
+        help=(
+            "Ativa busca de hiperparâmetros (RandomizedSearchCV com "
+            "TimeSeriesSplit) antes do fit final de cada modelo."
+        ),
+    )
+    parser.add_argument(
+        "--tune-iter",
+        type=int,
+        default=25,
+        help="Número de combinações testadas por modelo quando --tune é usado.",
     )
     return parser.parse_args()
 

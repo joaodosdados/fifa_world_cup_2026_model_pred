@@ -116,6 +116,65 @@ class DataLoader:
         clean = clean.drop_duplicates(subset=dedupe_columns or required)
         return clean.reset_index(drop=True)
     
+    def load_international_matches(
+        self,
+        include_friendlies: bool = True,
+        min_year: int | None = None,
+    ) -> pd.DataFrame:
+        """
+        Load the expanded international results dataset (World Cup,
+        qualifiers, continental tournaments, friendlies) and adapt it to
+        the same schema produced by load_matches(), so it can be used as a
+        drop-in replacement in the training pipeline.
+
+        Args:
+            include_friendlies: If False, excludes "Friendly" matches,
+                keeping only competitive/official matches.
+            min_year: If set, drop matches before this year.
+
+        Returns:
+            DataFrame with the same columns as load_matches(): 'Year',
+            'Datetime', 'Home Team Name', 'Away Team Name',
+            'Home Team Goals', 'Away Team Goals', 'MatchID'.
+        """
+        file_path = self.raw_dir / 'international_results.csv'
+        if not file_path.exists():
+            raise FileNotFoundError(
+                f"{file_path} não encontrado. Rode "
+                "scripts/fetch_external_data.py primeiro."
+            )
+
+        logger.info(f"Loading international matches from: {file_path}")
+        df = pd.read_csv(file_path)
+
+        if not include_friendlies:
+            df = df[df['tournament'].ne('Friendly')]
+
+        df = df.dropna(subset=['home_team', 'away_team', 'home_score', 'away_score'])
+
+        adapted = pd.DataFrame({
+            'Datetime': df['date'],
+            'Year': pd.to_datetime(df['date'], errors='coerce').dt.year,
+            'Home Team Name': df['home_team'].astype(str).str.strip(),
+            'Away Team Name': df['away_team'].astype(str).str.strip(),
+            'Home Team Goals': pd.to_numeric(df['home_score'], errors='coerce'),
+            'Away Team Goals': pd.to_numeric(df['away_score'], errors='coerce'),
+        })
+        adapted = adapted.dropna(
+            subset=['Year', 'Home Team Goals', 'Away Team Goals']
+        )
+        if min_year is not None:
+            adapted = adapted[adapted['Year'] >= min_year]
+
+        adapted = adapted.sort_values(
+            ['Datetime'], kind='stable'
+        ).reset_index(drop=True)
+        adapted['MatchID'] = adapted.index
+        adapted['Year'] = adapted['Year'].astype(int)
+
+        logger.info("Loaded %d international matches", len(adapted))
+        return adapted
+
     def load_teams(self) -> pd.DataFrame:
         """Load team statistics"""
         file_path = self.processed_dir / 'team_stats.csv'

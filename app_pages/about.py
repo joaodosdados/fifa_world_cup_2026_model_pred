@@ -13,9 +13,9 @@ with developer_col:
 with description_col:
     st.markdown(
         """
-        **João dos Dados**
+        **João "dos Dados" Oliveira**
 
-        Profissional de dados e inteligência artificial.
+        Data-driven professional with over 6 years of experience building scalable machine learning and AI solutions across media, mining, retail, telecommunications, and enterprise environments..
 
         [GitHub](https://github.com/joaodosdados) ·
         [LinkedIn](https://www.linkedin.com/in/joaodosdados/)
