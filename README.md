@@ -3,6 +3,8 @@
 Dashboard Streamlit para acompanhar resultados e comparar previsões de modelos
 de machine learning e do ensemble estatístico ELO + Poisson.
 
+![image](assets/home.png)
+
 ## Execução
 
 Requisitos:
