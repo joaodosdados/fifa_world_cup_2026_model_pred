@@ -2,95 +2,552 @@
   "logistic_regression": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9311475409836065,
-      "cv_mean": 0.9242519043454209,
-      "cv_std": 0.008435919297356057
+      "accuracy": 0.39880952380952384,
+      "cv_mean": 0.5621621621621622,
+      "cv_std": 0.1309997890399534,
+      "confusion_matrix": [
+        [
+          5,
+          0,
+          56
+        ],
+        [
+          2,
+          1,
+          37
+        ],
+        [
+          3,
+          3,
+          61
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.5,
+          "recall": 0.08196721311475409,
+          "f1-score": 0.14084507042253522,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.25,
+          "recall": 0.025,
+          "f1-score": 0.045454545454545456,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.3961038961038961,
+          "recall": 0.9104477611940298,
+          "f1-score": 0.5520361990950227,
+          "support": 67.0
+        },
+        "accuracy": 0.39880952380952384,
+        "macro avg": {
+          "precision": 0.382034632034632,
+          "recall": 0.33913832476959466,
+          "f1-score": 0.24611193832403444,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.3990414347557205,
+          "recall": 0.39880952380952384,
+          "f1-score": 0.2821199788888273,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6"
     },
-    "description": "Logistic Regression trained on World Cup historical data",
-    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/logistic_regression.pkl",
-    "saved_at": "2026-06-18T18:01:27.511592",
+    "description": "Logistic Regression treinado com validação temporal e features pré-jogo sem vazamento de dados.",
+    "path": "models/logistic_regression.pkl",
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
     "active": false
   },
   "random_forest": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9191256830601093,
-      "cv_mean": 0.911950094563178,
-      "cv_std": 0.0049313872544895655
+      "accuracy": 0.4523809523809524,
+      "cv_mean": 0.5567567567567567,
+      "cv_std": 0.1412318410253364,
+      "confusion_matrix": [
+        [
+          24,
+          11,
+          26
+        ],
+        [
+          9,
+          9,
+          22
+        ],
+        [
+          10,
+          14,
+          43
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.5581395348837209,
+          "recall": 0.39344262295081966,
+          "f1-score": 0.46153846153846156,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.2647058823529412,
+          "recall": 0.225,
+          "f1-score": 0.24324324324324326,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.4725274725274725,
+          "recall": 0.6417910447761194,
+          "f1-score": 0.5443037974683544,
+          "support": 67.0
+        },
+        "accuracy": 0.4523809523809524,
+        "macro avg": {
+          "precision": 0.4317909632547116,
+          "recall": 0.420077889242313,
+          "f1-score": 0.4163618340833531,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.45413147369860285,
+          "recall": 0.4523809523809524,
+          "f1-score": 0.44257101377354546,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6"
     },
-    "description": "Random Forest trained on World Cup historical data",
-    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/random_forest.pkl",
-    "saved_at": "2026-06-18T18:01:27.514822",
+    "description": "Random Forest treinado com validação temporal e features pré-jogo sem vazamento de dados.",
+    "path": "models/random_forest.pkl",
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
     "active": false
   },
   "gradient_boosting": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9289617486338798,
-      "cv_mean": 0.9179643874324416,
-      "cv_std": 0.010131553698535639
+      "accuracy": 0.44047619047619047,
+      "cv_mean": 0.5405405405405406,
+      "cv_std": 0.13179043998493506,
+      "confusion_matrix": [
+        [
+          12,
+          12,
+          37
+        ],
+        [
+          7,
+          8,
+          25
+        ],
+        [
+          9,
+          4,
+          54
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.42857142857142855,
+          "recall": 0.19672131147540983,
+          "f1-score": 0.2696629213483146,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.3333333333333333,
+          "recall": 0.2,
+          "f1-score": 0.25,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.46551724137931033,
+          "recall": 0.8059701492537313,
+          "f1-score": 0.5901639344262295,
+          "support": 67.0
+        },
+        "accuracy": 0.44047619047619047,
+        "macro avg": {
+          "precision": 0.4091406677613574,
+          "recall": 0.4008971535763804,
+          "f1-score": 0.36994228525818135,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.4206300336226444,
+          "recall": 0.44047619047619047,
+          "f1-score": 0.3928001298143129,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6"
     },
-    "description": "Gradient Boosting trained on World Cup historical data",
-    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/gradient_boosting.pkl",
-    "saved_at": "2026-06-18T18:01:27.519370",
+    "description": "Gradient Boosting treinado com validação temporal e features pré-jogo sem vazamento de dados.",
+    "path": "models/gradient_boosting.pkl",
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
     "active": false
   },
   "svm": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9333333333333333,
-      "cv_mean": 0.928630590627406,
-      "cv_std": 0.005880062225164243
+      "accuracy": 0.4642857142857143,
+      "cv_mean": 0.43423423423423424,
+      "cv_std": 0.06405905886353576,
+      "confusion_matrix": [
+        [
+          42,
+          12,
+          7
+        ],
+        [
+          19,
+          13,
+          8
+        ],
+        [
+          21,
+          23,
+          23
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.5121951219512195,
+          "recall": 0.6885245901639344,
+          "f1-score": 0.5874125874125874,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.2708333333333333,
+          "recall": 0.325,
+          "f1-score": 0.29545454545454547,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.6052631578947368,
+          "recall": 0.34328358208955223,
+          "f1-score": 0.4380952380952381,
+          "support": 67.0
+        },
+        "accuracy": 0.4642857142857143,
+        "macro avg": {
+          "precision": 0.46276387105976324,
+          "recall": 0.4522693907511622,
+          "f1-score": 0.44032079032079036,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.4918444485196732,
+          "recall": 0.4642857142857143,
+          "f1-score": 0.4583495869210155,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6"
     },
-    "description": "SVM trained on World Cup historical data",
-    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/svm.pkl",
-    "saved_at": "2026-06-18T18:01:27.519955",
+    "description": "SVM treinado com validação temporal e features pré-jogo sem vazamento de dados.",
+    "path": "models/svm.pkl",
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
     "active": false
   },
   "k-nearest_neighbors": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9169398907103825,
-      "cv_mean": 0.9135901863604763,
-      "cv_std": 0.0035067458607047275
+      "accuracy": 0.4523809523809524,
+      "cv_mean": 0.5513513513513513,
+      "cv_std": 0.14191977418028986,
+      "confusion_matrix": [
+        [
+          15,
+          13,
+          33
+        ],
+        [
+          3,
+          6,
+          31
+        ],
+        [
+          2,
+          10,
+          55
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.75,
+          "recall": 0.2459016393442623,
+          "f1-score": 0.37037037037037035,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.20689655172413793,
+          "recall": 0.15,
+          "f1-score": 0.17391304347826086,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.46218487394957986,
+          "recall": 0.8208955223880597,
+          "f1-score": 0.5913978494623656,
+          "support": 67.0
+        },
+        "accuracy": 0.4523809523809524,
+        "macro avg": {
+          "precision": 0.4730271418912393,
+          "recall": 0.40559905391077394,
+          "f1-score": 0.37856042110366567,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.5059062418070676,
+          "recall": 0.4523809523809524,
+          "f1-score": 0.4117426800339376,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6"
     },
-    "description": "K-Nearest Neighbors trained on World Cup historical data",
-    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/k-nearest_neighbors.pkl",
-    "saved_at": "2026-06-18T18:01:27.520486",
+    "description": "K-Nearest Neighbors treinado com validação temporal e features pré-jogo sem vazamento de dados.",
+    "path": "models/k-nearest_neighbors.pkl",
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
     "active": false
   },
   "naive_bayes": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9333333333333333,
-      "cv_mean": 0.9256206409365119,
-      "cv_std": 0.005664106609278048
+      "accuracy": 0.5,
+      "cv_mean": 0.572972972972973,
+      "cv_std": 0.12542922006455579,
+      "confusion_matrix": [
+        [
+          22,
+          4,
+          35
+        ],
+        [
+          3,
+          5,
+          32
+        ],
+        [
+          5,
+          5,
+          57
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.7333333333333333,
+          "recall": 0.36065573770491804,
+          "f1-score": 0.4835164835164835,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.35714285714285715,
+          "recall": 0.125,
+          "f1-score": 0.18518518518518517,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.4596774193548387,
+          "recall": 0.8507462686567164,
+          "f1-score": 0.5968586387434555,
+          "support": 67.0
+        },
+        "accuracy": 0.5,
+        "macro avg": {
+          "precision": 0.5167178699436764,
+          "recall": 0.4454673354538781,
+          "f1-score": 0.4218534358150414,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.5346275875941774,
+          "recall": 0.5,
+          "f1-score": 0.45768715296264534,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6"
     },
-    "description": "Naive Bayes trained on World Cup historical data",
-    "path": "/Users/joaolso/Documents/3-estudos/bolao_previsao/models/naive_bayes.pkl",
-    "saved_at": "2026-06-18T18:01:27.520764",
-    "active": false
+    "description": "Naive Bayes treinado com validação temporal e features pré-jogo sem vazamento de dados.",
+    "path": "models/naive_bayes.pkl",
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
+    "active": true
   },
   "ensemble_top3": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.9355191256830601,
-      "cv_score": 0.9267142846463786,
-      "cv_std": 0.0064072829031587035,
-      "model_type": "Ensemble (Top 3)",
-      "description": "Ensemble Voting: SVM + Naive Bayes + Logistic Regression com 93.6% de acur\u00e1cia",
-      "training_date": "2026-06-18T18:10:13.860343",
-      "features": 7,
-      "training_samples": 3657,
+      "accuracy": 0.47619047619047616,
+      "cv_mean": 0.554954954954955,
+      "cv_std": 0.13986903564018272,
+      "confusion_matrix": [
+        [
+          29,
+          7,
+          25
+        ],
+        [
+          11,
+          8,
+          21
+        ],
+        [
+          13,
+          11,
+          43
+        ]
+      ],
+      "classification_report": {
+        "away_win": {
+          "precision": 0.5471698113207547,
+          "recall": 0.47540983606557374,
+          "f1-score": 0.5087719298245614,
+          "support": 61.0
+        },
+        "draw": {
+          "precision": 0.3076923076923077,
+          "recall": 0.2,
+          "f1-score": 0.24242424242424243,
+          "support": 40.0
+        },
+        "home_win": {
+          "precision": 0.48314606741573035,
+          "recall": 0.6417910447761194,
+          "f1-score": 0.5512820512820513,
+          "support": 67.0
+        },
+        "accuracy": 0.47619047619047616,
+        "macro avg": {
+          "precision": 0.44600272880959757,
+          "recall": 0.43906696028056436,
+          "f1-score": 0.4341594078436184,
+          "support": 168.0
+        },
+        "weighted avg": {
+          "precision": 0.46461807925662074,
+          "recall": 0.47619047619047616,
+          "f1-score": 0.462309255072413,
+          "support": 168.0
+        }
+      },
+      "features": [
+        "home_goals_scored",
+        "home_goals_conceded",
+        "home_win_rate",
+        "away_goals_scored",
+        "away_goals_conceded",
+        "away_win_rate",
+        "home_advantage"
+      ],
+      "feature_method": "chronological_pre_match_expanding_stats",
+      "training_samples": 668,
+      "test_samples": 168,
+      "test_start_year": 2006,
+      "random_state": 42,
+      "sklearn_version": "1.9.0",
+      "numpy_version": "2.4.6",
       "ensemble_models": [
-        "SVM",
-        "Naive Bayes",
-        "Logistic Regression"
+        "naive_bayes",
+        "svm",
+        "random_forest"
       ]
     },
-    "description": "",
+    "description": "Ensemble Top 3 treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/ensemble_top3.pkl",
-    "saved_at": "2026-06-18T18:10:13.860938",
-    "active": true
+    "saved_at": "2026-06-19T19:49:50.534277+00:00",
+    "active": false
   }
 }

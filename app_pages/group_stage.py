@@ -5,8 +5,6 @@ Detailed group stage analysis
 import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
-from src.components.match_display import display_match_card_compact
-from src.utils.team_names import get_team_abbreviation
 
 # Access global state
 ensemble = st.session_state.get("predictor")
@@ -47,6 +45,21 @@ def display_match_detailed(ensemble, match):
     try:
         prediction = ensemble.predict_match(team_a, team_b, is_home_a=True)
         
+        predicted_home, predicted_away = prediction['most_likely_score']
+
+        score_col, goals_col = st.columns(2)
+        score_col.metric(
+            "Placar previsto",
+            f"{predicted_home} - {predicted_away}",
+        )
+        goals_col.metric(
+            "Gols esperados",
+            (
+                f"{prediction['expected_goals_home']:.1f} - "
+                f"{prediction['expected_goals_away']:.1f}"
+            ),
+        )
+
         # Win probabilities
         col1, col2, col3 = st.columns(3)
         
@@ -76,9 +89,6 @@ def display_match_detailed(ensemble, match):
             
             actual_home = int(match['home_score'])
             actual_away = int(match['away_score'])
-            predicted_home = prediction['most_likely_score'][0]
-            predicted_away = prediction['most_likely_score'][1]
-            
             col1, col2 = st.columns(2)
             
             with col1:
@@ -116,25 +126,6 @@ def display_match_detailed(ensemble, match):
                 st.error("✗ Model prediction was incorrect")
             
             st.markdown("---")
-        
-        # Score predictions with explanations
-        st.markdown("### Statistical Predictions")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.metric(
-                "Expected Score (Average)",
-                f"{prediction['expected_goals_home']:.1f} - {prediction['expected_goals_away']:.1f}"
-            )
-            st.caption("Statistical average of goals based on team strength")
-        
-        with col2:
-            st.metric(
-                "Most Likely Score",
-                f"{prediction['most_likely_score'][0]} - {prediction['most_likely_score'][1]}"
-            )
-            st.caption("Single most probable final score")
         
     except Exception as e:
         st.error(f"Error: {str(e)}")

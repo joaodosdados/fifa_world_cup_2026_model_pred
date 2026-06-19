@@ -5,7 +5,13 @@ Permite usar modelos sklearn com a mesma interface do EnsemblePredictor
 
 import numpy as np
 import pandas as pd
+from scipy.stats import poisson
 from typing import Dict, Any
+from src.models.features import (
+    DEFAULT_TEAM_STATS,
+    calculate_team_stats,
+    create_match_features,
+)
 
 
 class SklearnMatchPredictor:
@@ -23,30 +29,7 @@ class SklearnMatchPredictor:
             historical_data: Dados históricos para calcular estatísticas
         """
         self.model = sklearn_model
-        self.team_stats = self._calculate_team_stats(historical_data)
-    
-    def _calculate_team_stats(self, df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
-        """Calcula estatísticas históricas para cada time"""
-        team_stats = {}
-        
-        for team in set(df['Home Team Name'].unique()) | set(df['Away Team Name'].unique()):
-            home_matches = df[df['Home Team Name'] == team]
-            away_matches = df[df['Away Team Name'] == team]
-            
-            total_matches = len(home_matches) + len(away_matches)
-            if total_matches == 0:
-                continue
-            
-            team_stats[team] = {
-                'goals_scored': (home_matches['Home Team Goals'].sum() + 
-                               away_matches['Away Team Goals'].sum()) / (total_matches + 1),
-                'goals_conceded': (home_matches['Away Team Goals'].sum() + 
-                                 away_matches['Home Team Goals'].sum()) / (total_matches + 1),
-                'wins': ((home_matches['Home Team Goals'] > home_matches['Away Team Goals']).sum() + 
-                        (away_matches['Away Team Goals'] > away_matches['Home Team Goals']).sum()) / (total_matches + 1)
-            }
-        
-        return team_stats
+        self.team_stats = calculate_team_stats(historical_data)
     
     def _create_features(self, team_a: str, team_b: str) -> np.ndarray:
         """
@@ -59,27 +42,102 @@ class SklearnMatchPredictor:
         Returns:
             Array com features
         """
-        # Usar estatísticas médias se time não conhecido
-        default_stats = {
-            'goals_scored': 1.5,
-            'goals_conceded': 1.5,
-            'wins': 0.33
-        }
-        
-        home_stats = self.team_stats.get(team_a, default_stats)
-        away_stats = self.team_stats.get(team_b, default_stats)
-        
-        features = [
-            home_stats['goals_scored'],
-            home_stats['goals_conceded'],
-            home_stats['wins'],
-            away_stats['goals_scored'],
-            away_stats['goals_conceded'],
-            away_stats['wins'],
-            1  # home advantage
-        ]
-        
-        return np.array(features).reshape(1, -1)
+        return create_match_features(self.team_stats, team_a, team_b)
+
+    @staticmethod
+    def _softmax(values: np.ndarray) -> np.ndarray:
+        values = np.asarray(values, dtype=float)
+        values = values - np.max(values)
+        exponentials = np.exp(values)
+        return exponentials / exponentials.sum()
+
+    def _predict_probabilities(self, X: np.ndarray) -> Dict[int, float]:
+        """Return class probabilities using the best capability of the estimator."""
+        classes = list(getattr(self.model, 'classes_', [0, 1, 2]))
+
+        values = None
+
+        if hasattr(self.model, 'predict_proba'):
+            try:
+                values = np.asarray(self.model.predict_proba(X)[0], dtype=float)
+            except (AttributeError, NotImplementedError):
+                values = None
+
+        if values is None and hasattr(self.model, 'decision_function'):
+            try:
+                decision = np.asarray(self.model.decision_function(X), dtype=float)
+                values = self._softmax(decision.reshape(-1))
+            except (AttributeError, NotImplementedError):
+                values = None
+
+        if values is None and hasattr(self.model, 'estimators_'):
+            votes = [int(estimator.predict(X)[0]) for estimator in self.model.estimators_]
+            values = np.array([votes.count(int(label)) for label in classes], dtype=float)
+            values = values / values.sum()
+
+        if values is None:
+            predicted = int(self.model.predict(X)[0])
+            values = np.array([1.0 if int(label) == predicted else 0.0 for label in classes])
+
+        return {int(label): float(probability) for label, probability in zip(classes, values)}
+
+    def _predict_expected_goals(
+        self, team_a: str, team_b: str, is_home_a: bool
+    ) -> tuple[float, float]:
+        """Estimate goals from both teams' attack and defensive history."""
+        from src.utils.team_names import normalize_team_name
+
+        home_stats = self.team_stats.get(
+            normalize_team_name(team_a), DEFAULT_TEAM_STATS
+        )
+        away_stats = self.team_stats.get(
+            normalize_team_name(team_b), DEFAULT_TEAM_STATS
+        )
+
+        expected_home = (
+            home_stats['goals_scored'] + away_stats['goals_conceded']
+        ) / 2
+        expected_away = (
+            away_stats['goals_scored'] + home_stats['goals_conceded']
+        ) / 2
+
+        if is_home_a:
+            expected_home *= 1.10
+            expected_away *= 0.95
+        else:
+            expected_home *= 0.95
+            expected_away *= 1.10
+
+        return max(0.05, expected_home), max(0.05, expected_away)
+
+    @staticmethod
+    def _most_likely_score(
+        expected_home: float,
+        expected_away: float,
+        predicted_outcome: str,
+        max_goals: int = 8,
+    ) -> tuple[int, int]:
+        """Select the likeliest Poisson score consistent with the ML outcome."""
+        best_score = (0, 0)
+        best_probability = -1.0
+
+        for home_goals in range(max_goals + 1):
+            for away_goals in range(max_goals + 1):
+                if predicted_outcome == 'home' and home_goals <= away_goals:
+                    continue
+                if predicted_outcome == 'away' and away_goals <= home_goals:
+                    continue
+                if predicted_outcome == 'draw' and home_goals != away_goals:
+                    continue
+
+                probability = poisson.pmf(
+                    home_goals, expected_home
+                ) * poisson.pmf(away_goals, expected_away)
+                if probability > best_probability:
+                    best_probability = probability
+                    best_score = (home_goals, away_goals)
+
+        return best_score
     
     def predict_match(self, team_a: str, team_b: str, is_home_a: bool = True) -> Dict[str, Any]:
         """
@@ -97,37 +155,30 @@ class SklearnMatchPredictor:
         X = self._create_features(team_a, team_b)
         
         # Fazer predição
-        try:
-            # Tentar usar probabilidades
-            proba = self.model.predict_proba(X)[0]
-            
-            # proba[0] = away win, proba[1] = draw, proba[2] = home win
-            away_win = float(proba[0]) if len(proba) > 0 else 0.33
-            draw = float(proba[1]) if len(proba) > 1 else 0.33
-            home_win = float(proba[2]) if len(proba) > 2 else 0.34
-        except Exception:
-            # Modelo não suporta probabilidades ou não foi treinado com probability=True
-            # Usar predição hard
-            prediction = self.model.predict(X)[0]
-            
-            if prediction == 2:  # home win
-                home_win, draw, away_win = 0.7, 0.2, 0.1
-            elif prediction == 0:  # away win
-                home_win, draw, away_win = 0.1, 0.2, 0.7
-            else:  # draw
-                home_win, draw, away_win = 0.3, 0.4, 0.3
+        probabilities = self._predict_probabilities(X)
+        away_win = probabilities.get(0, 0.0)
+        draw = probabilities.get(1, 0.0)
+        home_win = probabilities.get(2, 0.0)
         
-        # Calcular placares esperados baseado nas estatísticas
-        home_stats = self.team_stats.get(team_a, {'goals_scored': 1.5})
-        away_stats = self.team_stats.get(team_b, {'goals_scored': 1.5})
-        
-        expected_goals_home = home_stats['goals_scored'] * 1.1  # home advantage
-        expected_goals_away = away_stats['goals_scored'] * 0.9
-        
-        # Placar mais provável (arredondado)
-        most_likely_score = (
-            round(expected_goals_home),
-            round(expected_goals_away)
+        expected_goals_home, expected_goals_away = self._predict_expected_goals(
+            team_a, team_b, is_home_a
+        )
+        predicted_outcome = max(
+            {
+                'home': home_win,
+                'draw': draw,
+                'away': away_win,
+            },
+            key={
+                'home': home_win,
+                'draw': draw,
+                'away': away_win,
+            }.get,
+        )
+        most_likely_score = self._most_likely_score(
+            expected_goals_home,
+            expected_goals_away,
+            predicted_outcome,
         )
         
         return {

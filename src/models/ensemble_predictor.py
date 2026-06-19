@@ -10,6 +10,7 @@ import logging
 
 from src.models.elo_predictor import ELOPredictor
 from src.models.poisson_predictor import PoissonPredictor
+from src.utils.team_names import normalize_team_name
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -76,10 +77,17 @@ class EnsemblePredictor:
         """
         if not self.is_trained:
             raise ValueError("Model must be trained before making predictions")
+
+        model_team_a = normalize_team_name(team_a)
+        model_team_b = normalize_team_name(team_b)
         
         # Get predictions from both models
-        elo_pred = self.elo_model.predict_match(team_a, team_b, is_home_a)
-        poisson_pred = self.poisson_model.predict_match(team_a, team_b, is_home_a)
+        elo_pred = self.elo_model.predict_match(
+            model_team_a, model_team_b, is_home_a
+        )
+        poisson_pred = self.poisson_model.predict_match(
+            model_team_a, model_team_b, is_home_a
+        )
         
         # Combine predictions using weighted average
         combined = {
@@ -90,6 +98,13 @@ class EnsemblePredictor:
             'away_win': (self.elo_weight * elo_pred['away_win'] + 
                         self.poisson_weight * poisson_pred['away_win']),
         }
+
+        probability_total = sum(combined.values())
+        if probability_total:
+            combined = {
+                outcome: probability / probability_total
+                for outcome, probability in combined.items()
+            }
         
         # Add additional information
         combined.update({

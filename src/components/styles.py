@@ -86,6 +86,21 @@ def apply_custom_css():
             font-weight: bold;
             margin-bottom: 0.5rem;
         }
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+            gap: 0.55rem;
+        }
+        [data-testid="stSidebar"] hr {
+            margin: 0.25rem 0;
+        }
+        [data-testid="stSidebar"] [data-testid="stMetric"] {
+            padding: 0;
+        }
+        [data-testid="stSidebar"] [data-testid="stMetricValue"] {
+            font-size: 1.35rem;
+        }
+        [data-testid="stSidebar"] h3 {
+            margin-bottom: 0.15rem;
+        }
     </style>
     """, unsafe_allow_html=True)
 

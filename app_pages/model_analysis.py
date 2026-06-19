@@ -1,200 +1,282 @@
-"""
-Model Analysis Page
-ELO ratings, statistics, and model performance
-"""
-import streamlit as st
-import plotly.graph_objects as go
+"""Analysis page driven by the model currently selected in the sidebar."""
+
+from __future__ import annotations
+
+import numpy as np
 import pandas as pd
+import streamlit as st
+
 from src.data.loader import DataLoader
 
-def show_ml_analysis(models):
-    """Display ML model analysis"""
-    model_name = models.get('ml_name', 'svm').upper()
-    st.markdown(f"## ML Model Analysis ({model_name})")
-    
-    ml_model = models.get('ml_model')
-    ml_metrics = models.get('ml_metrics', {})
-    
-    # Model Performance
-    st.markdown("### 📊 Model Performance")
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.metric("Training Accuracy", f"{ml_metrics.get('accuracy', 0):.1%}")
-    with col2:
-        st.metric("Cross-Validation", f"{ml_metrics.get('cv_mean', 0):.1%}")
-    with col3:
-        st.metric("CV Std Dev", f"{ml_metrics.get('cv_std', 0):.3f}")
-    
-    st.markdown("---")
-    
-    # Feature Importance (if available)
-    st.markdown("### 🎯 Model Features")
-    model_name = models.get('ml_name', 'svm')
-    
-    # Check if it's an ensemble model
-    if model_name == 'ensemble_top3':
-        ensemble_models = ml_metrics.get('ensemble_models', ['SVM', 'Naive Bayes', 'Logistic Regression'])
-        st.info(f"""
-        **Ensemble Voting Classifier:**
-        
-        Este modelo combina as predições de 3 modelos usando votação por maioria:
-        - {ensemble_models[0]}
-        - {ensemble_models[1]}
-        - {ensemble_models[2]}
-        
-        **Features utilizadas por cada modelo:**
-        - Goals Scored (Home/Away)
-        - Goals Conceded (Home/Away)
-        - Win Rate (Home/Away)
-        - Home Advantage Factor
-        
-        O ensemble foi treinado em dados históricos de Copas do Mundo.
-        """)
-    else:
-        st.info(f"""
-        **Features utilizadas pelo modelo {model_name.upper()}:**
-        - Goals Scored (Home/Away)
-        - Goals Conceded (Home/Away)
-        - Win Rate (Home/Away)
-        - Home Advantage Factor
-        
-        O modelo foi treinado em dados históricos de Copas do Mundo.
-        """)
-    
-    # Training Data
-    st.markdown("### 📚 Training Data")
-    try:
-        loader = DataLoader()
-        matches_df = loader.load_matches(processed=False)
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Matches", f"{len(matches_df):,}")
-        with col2:
-            if 'Year' in matches_df.columns:
-                st.metric("Period", f"{int(matches_df['Year'].min())}-{int(matches_df['Year'].max())}")
-        with col3:
-            if 'Home Team Name' in matches_df.columns:
-                unique_teams = pd.concat([matches_df['Home Team Name'], matches_df['Away Team Name']]).nunique()
-                st.metric("Teams", unique_teams)
-        
-        st.markdown("#### Sample Data")
-        display_cols = ['Year', 'Home Team Name', 'Away Team Name', 'Home Team Goals', 'Away Team Goals']
-        if all(col in matches_df.columns for col in display_cols):
-            st.dataframe(matches_df[display_cols].head(10), use_container_width=True)
-        else:
-            st.dataframe(matches_df.head(10), use_container_width=True)
-        
-    except Exception as e:
-        st.error(f"Error loading training data: {e}")
 
-def show_elo_analysis(models):
-    """Display ELO model analysis"""
-    st.markdown("## ELO Model Analysis")
-    
-    analysis_model = models.get("elo_model")
-    
-    if analysis_model is None:
-        st.error("ELO model not available")
+FEATURE_NAMES = [
+    "Gols marcados · mandante",
+    "Gols sofridos · mandante",
+    "Taxa de vitórias · mandante",
+    "Gols marcados · visitante",
+    "Gols sofridos · visitante",
+    "Taxa de vitórias · visitante",
+    "Vantagem de mando",
+]
+
+
+def metric_value(metrics, *names, default=None):
+    for name in names:
+        if name in metrics:
+            return metrics[name]
+    return default
+
+
+def show_metadata(model):
+    metrics = model["metrics"]
+    accuracy = metric_value(metrics, "accuracy")
+    validation = metric_value(metrics, "cv_mean", "cv_score")
+    validation_std = metric_value(metrics, "cv_std")
+
+    columns = st.columns(3)
+    columns[0].metric(
+        "Acurácia registrada",
+        f"{accuracy:.1%}" if accuracy is not None else "Não informada",
+    )
+    columns[1].metric(
+        "Validação cruzada",
+        f"{validation:.1%}" if validation is not None else "Não informada",
+    )
+    columns[2].metric(
+        "Desvio da validação",
+        f"{validation_std:.3f}" if validation_std is not None else "Não informado",
+    )
+
+    st.info(model["description"])
+
+
+def show_feature_values(title, values):
+    values = np.asarray(values, dtype=float).reshape(-1)
+    if len(values) != len(FEATURE_NAMES):
+        st.warning("O estimador não expõe valores compatíveis com as sete features.")
         return
-    
-    tab1, tab2, tab3, tab4 = st.tabs(["ELO Ratings", "Team Statistics", "Complete Rankings", "Training Data"])
-    
-    with tab1:
-        ratings_df = analysis_model.elo_model.get_all_ratings()
-        # Filter out None, nan, and invalid teams
-        ratings_df = ratings_df[
-            (ratings_df['team'] != 'nan') &
-            (ratings_df['team'].notna()) &
-            (ratings_df['team'] != 'None') &
-            (ratings_df['team'] != None)
-        ].head(20)
-        
-        st.markdown("### Top 20 Teams by ELO Rating")
-        st.dataframe(ratings_df, use_container_width=True, height=600)
-    
-    with tab2:
-        team_stats = []
-        for team, stats in analysis_model.poisson_model.team_stats.items():
-            # Filter out None, nan, and invalid teams
-            if team and team != 'nan' and team != 'None' and str(team).lower() != 'none':
-                team_stats.append({
-                    'Team': team,
-                    'Attack': stats['attack_strength'],
-                    'Defense': stats['defense_strength'],
-                    'Matches': stats['matches_played']
-                })
-        
-        stats_df = pd.DataFrame(team_stats).sort_values('Attack', ascending=False)
-        st.markdown("### Team Attack & Defense")
-        st.dataframe(stats_df, use_container_width=True, height=600)
-    
-    with tab3:
-        ratings_df = analysis_model.elo_model.get_all_ratings()
-        # Filter out None, nan, and invalid teams
-        ratings_df = ratings_df[
-            (ratings_df['team'] != 'nan') &
-            (ratings_df['team'].notna()) &
-            (ratings_df['team'] != 'None') &
-            (ratings_df['team'] != None)
-        ].reset_index(drop=True)
-        ratings_df.index = ratings_df.index + 1
-        
-        st.markdown("### Complete Team Rankings")
-        st.caption("All teams ranked by ELO rating")
-        st.dataframe(
-            ratings_df.rename(columns={'team': 'Team', 'elo_rating': 'ELO Rating'}),
-            use_container_width=True,
-            height=600
+
+    frame = pd.DataFrame({"Feature": FEATURE_NAMES, "Valor": values})
+    frame["Magnitude"] = frame["Valor"].abs()
+    frame = frame.sort_values("Magnitude", ascending=False).drop(columns="Magnitude")
+    st.markdown(f"#### {title}")
+    st.dataframe(frame, width="stretch", hide_index=True)
+
+
+def show_estimator_analysis(estimator):
+    if type(estimator).__name__ == "Pipeline":
+        steps = list(estimator.named_steps.values())
+        preprocessing = [type(step).__name__ for step in steps[:-1]]
+        estimator = steps[-1]
+        if preprocessing:
+            st.caption(
+                "Pré-processamento: " + " → ".join(preprocessing)
+            )
+
+    estimator_name = type(estimator).__name__
+    st.markdown(f"### Heurística: {estimator_name}")
+
+    if estimator_name == "VotingClassifier":
+        voting = getattr(estimator, "voting", "hard")
+        components = [
+            {
+                "Identificador": name,
+                "Estimador": type(component).__name__,
+            }
+            for name, component in getattr(estimator, "estimators", [])
+        ]
+        st.write(
+            "Combina as decisões dos estimadores abaixo por "
+            f"**votação {voting}**. Cada componente enxerga as mesmas sete features."
         )
-    
-    with tab4:
-        st.markdown("### Historical Training Data")
-        st.caption("Sample of World Cup matches used to train the ELO and Poisson models")
-        
-        try:
-            loader = DataLoader()
-            matches_df = loader.load_matches(processed=False)
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Total Matches", f"{len(matches_df):,}")
-            with col2:
-                if 'Year' in matches_df.columns:
-                    st.metric("Period", f"{int(matches_df['Year'].min())}-{int(matches_df['Year'].max())}")
-            with col3:
-                if 'Home Team Name' in matches_df.columns:
-                    unique_teams = pd.concat([matches_df['Home Team Name'], matches_df['Away Team Name']]).nunique()
-                    st.metric("Teams", unique_teams)
-            
-            st.markdown("#### Sample Data")
-            display_cols = ['Year', 'Home Team Name', 'Away Team Name', 'Home Team Goals', 'Away Team Goals']
-            if all(col in matches_df.columns for col in display_cols):
-                st.dataframe(matches_df[display_cols].head(10), use_container_width=True)
-            else:
-                st.dataframe(matches_df.head(10), use_container_width=True)
-            
-        except Exception as e:
-            st.error(f"Error loading training data: {e}")
+        st.dataframe(pd.DataFrame(components), width="stretch", hide_index=True)
+        return
 
-def show_model_analysis(ensemble):
-    """Display model analysis based on active model"""
-    
-    # Get active model info
-    active_model = st.session_state.get('active_model', 'ELO')
-    models = st.session_state.get("models", {})
-    
-    # Show appropriate analysis
-    if active_model and active_model.startswith('ML ('):
-        show_ml_analysis(models)
-    else:
-        show_elo_analysis(models)
+    if hasattr(estimator, "feature_importances_"):
+        show_feature_values("Importância das features", estimator.feature_importances_)
+        st.caption(
+            "Valores maiores indicam features mais usadas nas divisões e decisões "
+            "do modelo."
+        )
+        return
 
-# Execute page
-predictor = st.session_state.get("predictor")
+    if hasattr(estimator, "coef_"):
+        coefficients = np.asarray(estimator.coef_)
+        show_feature_values(
+            "Magnitude média dos coeficientes",
+            np.mean(np.abs(coefficients), axis=0),
+        )
+        st.caption(
+            "A tabela resume a influência linear média de cada feature entre as classes."
+        )
+        return
 
-if predictor:
-    show_model_analysis(predictor)
+    if estimator_name == "SVC":
+        columns = st.columns(3)
+        columns[0].metric("Kernel", getattr(estimator, "kernel", "—"))
+        columns[1].metric(
+            "Vetores de suporte",
+            int(np.sum(getattr(estimator, "n_support_", [0]))),
+        )
+        columns[2].metric("C", getattr(estimator, "C", "—"))
+        st.write(
+            "O SVM separa os resultados no espaço de features usando os vetores "
+            "de suporte mais próximos das fronteiras entre vitória, empate e derrota."
+        )
+        return
+
+    if estimator_name == "CalibratedClassifierCV":
+        base_estimator = getattr(estimator, "estimator", None)
+        st.write(
+            "O classificador base produz margens de decisão e uma calibração "
+            "sigmoide as converte em probabilidades comparáveis."
+        )
+        if base_estimator is not None:
+            columns = st.columns(3)
+            columns[0].metric("Base", type(base_estimator).__name__)
+            columns[1].metric("Calibração", getattr(estimator, "method", "—"))
+            columns[2].metric("Folds internos", getattr(estimator, "cv", "—"))
+        return
+
+    if estimator_name == "GaussianNB":
+        class_counts = getattr(estimator, "class_count_", [])
+        classes = getattr(estimator, "classes_", [])
+        frame = pd.DataFrame(
+            {
+                "Classe": classes,
+                "Amostras": class_counts,
+                "Prior": getattr(estimator, "class_prior_", [None] * len(classes)),
+            }
+        )
+        st.write(
+            "O Naive Bayes estima distribuições gaussianas por classe e combina "
+            "as probabilidades assumindo independência condicional das features."
+        )
+        st.dataframe(frame, width="stretch", hide_index=True)
+        return
+
+    if estimator_name == "KNeighborsClassifier":
+        columns = st.columns(3)
+        columns[0].metric("Vizinhos", getattr(estimator, "n_neighbors", "—"))
+        columns[1].metric("Pesos", getattr(estimator, "weights", "—"))
+        columns[2].metric("Métrica", getattr(estimator, "metric", "—"))
+        st.write(
+            "A previsão é determinada pelos jogos historicamente mais próximos "
+            "no espaço das sete features."
+        )
+        return
+
+    st.warning(
+        "Este estimador não publica uma heurística visual específica. "
+        "As informações técnicas disponíveis são exibidas abaixo."
+    )
+    st.json(
+        {
+            "tipo": estimator_name,
+            "possui_predict_proba": hasattr(estimator, "predict_proba"),
+            "possui_decision_function": hasattr(estimator, "decision_function"),
+            "parâmetros": (
+                estimator.get_params(deep=False)
+                if hasattr(estimator, "get_params")
+                else {}
+            ),
+        }
+    )
+
+
+def show_statistical_analysis(model):
+    predictor = model["predictor"]
+    st.markdown("### Heurística: ELO + Poisson")
+
+    columns = st.columns(3)
+    columns[0].metric("Peso ELO", f"{predictor.elo_weight:.0%}")
+    columns[1].metric("Peso Poisson", f"{predictor.poisson_weight:.0%}")
+    columns[2].metric("Times avaliados", len(predictor.poisson_model.team_stats))
+
+    st.write(
+        "**ELO** atualiza a força relativa após cada partida. **Poisson** estima "
+        "gols esperados a partir das forças de ataque e defesa. As probabilidades "
+        "finais são a média ponderada das duas abordagens."
+    )
+
+    ratings = predictor.elo_model.get_all_ratings().head(20).rename(
+        columns={"team": "Seleção", "elo_rating": "Rating ELO"}
+    )
+    st.markdown("#### Top 20 por ELO")
+    st.dataframe(ratings, width="stretch", hide_index=True)
+
+    team_stats = pd.DataFrame(
+        [
+            {
+                "Seleção": team,
+                "Ataque": stats["attack_strength"],
+                "Defesa": stats["defense_strength"],
+                "Jogos": stats["matches_played"],
+            }
+            for team, stats in predictor.poisson_model.team_stats.items()
+        ]
+    ).sort_values("Ataque", ascending=False)
+    st.markdown("#### Forças estimadas por Poisson")
+    st.dataframe(team_stats, width="stretch", hide_index=True, height=420)
+
+
+def show_training_data():
+    matches = DataLoader().load_matches(processed=False)
+    columns = st.columns(3)
+    columns[0].metric("Partidas válidas", f"{len(matches):,}")
+    columns[1].metric(
+        "Período",
+        f"{int(matches['Year'].min())}–{int(matches['Year'].max())}",
+    )
+    teams = pd.concat(
+        [matches["Home Team Name"], matches["Away Team Name"]]
+    ).nunique()
+    columns[2].metric("Seleções", teams)
+
+    st.caption(
+        "Linhas vazias, times ausentes, gols inválidos e duplicatas são removidos "
+        "antes do treinamento e das análises."
+    )
+    st.dataframe(
+        matches[
+            [
+                "Year",
+                "Home Team Name",
+                "Away Team Name",
+                "Home Team Goals",
+                "Away Team Goals",
+            ]
+        ].head(20),
+        width="stretch",
+        hide_index=True,
+    )
+
+
+active_model = st.session_state.get("active_model")
+
+if not active_model:
+    st.error("Nenhum modelo ativo.")
 else:
-    st.error("Failed to load predictor")
+    st.markdown(f"## {active_model['label']}")
+    overview_tab, heuristic_tab, data_tab = st.tabs(
+        ["Visão geral", "Heurística e diagnóstico", "Dados"]
+    )
+
+    with overview_tab:
+        show_metadata(active_model)
+        live_accuracy = st.session_state.get("accuracy_stats")
+        if live_accuracy:
+            st.markdown("### Desempenho nos resultados de 2026")
+            columns = st.columns(3)
+            columns[0].metric("Acurácia", f"{live_accuracy['accuracy']:.1f}%")
+            columns[1].metric("Acertos", live_accuracy["correct"])
+            columns[2].metric("Partidas", live_accuracy["total"])
+
+    with heuristic_tab:
+        if active_model["kind"] == "statistical":
+            show_statistical_analysis(active_model)
+        else:
+            show_estimator_analysis(active_model["estimator"])
+
+    with data_tab:
+        show_training_data()

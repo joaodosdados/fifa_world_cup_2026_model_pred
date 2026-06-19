@@ -29,10 +29,6 @@ class DataLoader:
         self.cache_dir = self.data_dir / 'cache'
         self.predictions_dir = self.data_dir / 'predictions'
         
-        # Create directories if they don't exist
-        for directory in [self.raw_dir, self.processed_dir, self.cache_dir, self.predictions_dir]:
-            directory.mkdir(parents=True, exist_ok=True)
-    
     def load_matches(self, processed: bool = True) -> pd.DataFrame:
         """
         Load match data
@@ -70,12 +66,55 @@ class DataLoader:
             
             logger.info(f"Loading matches from: {file_path}")
             df = pd.read_csv(file_path)
-            logger.info(f"Loaded {len(df)} matches")
+            df = self._sanitize_matches(df)
+            logger.info("Loaded %d valid matches", len(df))
             return df
             
         except Exception as e:
             logger.error(f"Error loading matches: {e}")
             raise
+
+    @staticmethod
+    def _sanitize_matches(df: pd.DataFrame) -> pd.DataFrame:
+        """Remove empty/duplicated rows and enforce the prediction schema."""
+        required = [
+            'Home Team Name',
+            'Away Team Name',
+            'Home Team Goals',
+            'Away Team Goals',
+        ]
+        missing = [column for column in required if column not in df.columns]
+        if missing:
+            raise ValueError(f"Match dataset is missing columns: {missing}")
+
+        clean = df.dropna(subset=required).copy()
+        clean['Home Team Name'] = clean['Home Team Name'].astype(str).str.strip()
+        clean['Away Team Name'] = clean['Away Team Name'].astype(str).str.strip()
+        for column in ['Home Team Name', 'Away Team Name']:
+            clean[column] = clean[column].str.replace(
+                r'^.*">', '', regex=True
+            ).str.strip()
+        clean = clean[
+            clean['Home Team Name'].ne('')
+            & clean['Away Team Name'].ne('')
+            & clean['Home Team Name'].str.lower().ne('nan')
+            & clean['Away Team Name'].str.lower().ne('nan')
+        ]
+        clean['Home Team Goals'] = pd.to_numeric(
+            clean['Home Team Goals'], errors='coerce'
+        )
+        clean['Away Team Goals'] = pd.to_numeric(
+            clean['Away Team Goals'], errors='coerce'
+        )
+        clean = clean.dropna(subset=['Home Team Goals', 'Away Team Goals'])
+
+        dedupe_columns = [
+            column
+            for column in ['MatchID', 'Year', 'Home Team Name', 'Away Team Name']
+            if column in clean.columns
+        ]
+        clean = clean.drop_duplicates(subset=dedupe_columns or required)
+        return clean.reset_index(drop=True)
     
     def load_teams(self) -> pd.DataFrame:
         """Load team statistics"""
@@ -164,6 +203,7 @@ class DataLoader:
             Path to saved file
         """
         output_path = self.processed_dir / filename
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_path, index=False)
         logger.info(f"Saved processed data to: {output_path}")
         return output_path
@@ -180,6 +220,7 @@ class DataLoader:
             Path to saved file
         """
         output_path = self.predictions_dir / filename
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_path, index=False)
         logger.info(f"Saved predictions to: {output_path}")
         return output_path

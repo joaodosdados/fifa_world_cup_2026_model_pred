@@ -38,6 +38,9 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb_checkpoints/
+**/catboost_info/
+notebooks/models/
+notebooks/data/
 
 # Environment variables
 .env

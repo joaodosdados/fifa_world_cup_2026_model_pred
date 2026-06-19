@@ -155,6 +155,12 @@ class PoissonPredictor:
                     away_win += prob
                 else:
                     draw += prob
+
+        probability_total = home_win + draw + away_win
+        if probability_total:
+            home_win /= probability_total
+            draw /= probability_total
+            away_win /= probability_total
         
         # Calculate most likely score
         most_likely_score = self._get_most_likely_score(prob_a, prob_b, max_goals)

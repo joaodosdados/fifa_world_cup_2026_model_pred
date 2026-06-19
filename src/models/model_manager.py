@@ -5,11 +5,15 @@ Gerencia múltiplos modelos treinados e seleciona o melhor automaticamente
 
 import pickle
 import json
+import logging
+import warnings
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 import pandas as pd
-import numpy as np
 from datetime import datetime
+from sklearn.exceptions import InconsistentVersionWarning
+
+logger = logging.getLogger(__name__)
 
 
 class ModelManager:
@@ -68,12 +72,35 @@ class ModelManager:
         if model_name not in self.metadata:
             return None
         
-        model_path = Path(self.metadata[model_name]['path'])
+        configured_path = Path(self.metadata[model_name]['path'])
+        model_path = (
+            configured_path
+            if configured_path.exists()
+            else self.models_dir / f"{model_name}.pkl"
+        )
         if not model_path.exists():
             return None
         
         with open(model_path, 'rb') as f:
-            return pickle.load(f)
+            # Every loaded estimator is exercised by model_catalog before being
+            # exposed. Suppress noisy pickle-version warnings and reject models
+            # that fail the runtime prediction check.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", InconsistentVersionWarning)
+                return pickle.load(f)
+
+    def get_available_models(self) -> Dict[str, Any]:
+        """Load every model whose artifact is currently available."""
+        available = {}
+        for name in self.metadata:
+            try:
+                model = self.load_model(name)
+            except Exception as exc:
+                logger.warning("Skipping model %s: %s", name, exc)
+                continue
+            if model is not None:
+                available[name] = model
+        return available
     
     def get_best_model(self, metric: str = 'accuracy') -> tuple[Optional[Any], Optional[str]]:
         """
@@ -173,59 +200,3 @@ class ModelManager:
             # Remover metadados
             del self.metadata[model_name]
             self._save_metadata()
-
-
-class ModelSelector:
-    """Seletor inteligente de modelos para predições"""
-    
-    def __init__(self, manager: ModelManager):
-        self.manager = manager
-        self.current_model = None
-        self.current_model_name = None
-        self._load_active_model()
-    
-    def _load_active_model(self):
-        """Carrega o modelo ativo ou o melhor disponível"""
-        self.current_model, self.current_model_name = self.manager.get_active_model()
-    
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        """Faz predição usando o modelo atual"""
-        if self.current_model is None:
-            raise ValueError("Nenhum modelo disponível para predição")
-        
-        return self.current_model.predict(X)
-    
-    def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        """Retorna probabilidades (se o modelo suportar)"""
-        if self.current_model is None:
-            raise ValueError("Nenhum modelo disponível para predição")
-        
-        if hasattr(self.current_model, 'predict_proba'):
-            return self.current_model.predict_proba(X)
-        else:
-            # Fallback: converter predições em probabilidades one-hot
-            predictions = self.predict(X)
-            n_classes = len(np.unique(predictions))
-            proba = np.zeros((len(predictions), n_classes))
-            for i, pred in enumerate(predictions):
-                proba[i, int(pred)] = 1.0
-            return proba
-    
-    def switch_model(self, model_name: str):
-        """Troca para outro modelo"""
-        model = self.manager.load_model(model_name)
-        if model is not None:
-            self.current_model = model
-            self.current_model_name = model_name
-            self.manager.set_active_model(model_name)
-            return True
-        return False
-    
-    def get_current_model_info(self) -> Dict:
-        """Retorna informações do modelo atual"""
-        if self.current_model_name is None:
-            return {}
-        
-        return self.manager.metadata.get(self.current_model_name, {})
-
-# Made with Bob

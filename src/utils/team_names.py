@@ -88,6 +88,56 @@ TEAM_ABBREVIATIONS = {
     'New Zealand': 'NZL',
 }
 
+PREDICTION_TEAM_NAMES = {
+    'Alemanha': 'Germany',
+    'Argélia': 'Algeria',
+    'Arábia Saudita': 'Saudi Arabia',
+    'Austrália': 'Australia',
+    'Áustria': 'Austria',
+    'Bélgica': 'Belgium',
+    'Bósnia e Herzegovina': 'Bosnia and Herzegovina',
+    'Brasil': 'Brazil',
+    'Canadá': 'Canada',
+    'Catar': 'Qatar',
+    'Colômbia': 'Colombia',
+    'Costa do Marfim': 'Ivory Coast',
+    'Croácia': 'Croatia',
+    'Egito': 'Egypt',
+    'Equador': 'Ecuador',
+    'Escócia': 'Scotland',
+    'Espanha': 'Spain',
+    'EUA': 'USA',
+    'França': 'France',
+    'Gana': 'Ghana',
+    'Holanda': 'Netherlands',
+    'Inglaterra': 'England',
+    'Iraque': 'Iraq',
+    'Japão': 'Japan',
+    'Marrocos': 'Morocco',
+    'México': 'Mexico',
+    'Noruega': 'Norway',
+    'Nova Zelândia': 'New Zealand',
+    'Panamá': 'Panama',
+    'Paraguai': 'Paraguay',
+    'RD do Congo': 'Zaire',
+    'RI do Irã': 'Iran',
+    'República da Coreia': 'Korea Republic',
+    'Senegal': 'Senegal',
+    'Suécia': 'Sweden',
+    'Suíça': 'Switzerland',
+    'Tchéquia': 'Czech Republic',
+    'Tunísia': 'Tunisia',
+    'Turquia': 'Turkey',
+    'Uruguai': 'Uruguay',
+    'África do Sul': 'South Africa',
+}
+
+
+def normalize_team_name(team_name: str) -> str:
+    """Map display names to the identifiers used by historical models."""
+    clean_name = str(team_name).strip()
+    return PREDICTION_TEAM_NAMES.get(clean_name, clean_name)
+
 def get_team_abbreviation(team_name):
     """
     Get TV-style abbreviation for a team name.

@@ -25,6 +25,8 @@ def display_match_card_compact(ensemble, match, show_prob, show_scores):
             winner_prob = prediction['away_win']
         else:
             winner_prob = prediction['draw']
+
+        predicted_home, predicted_away = prediction['most_likely_score']
         
         # Get flags
         flag_a = get_flag_html(team_a, size='w40', height=20)
@@ -102,6 +104,14 @@ def display_match_card_compact(ensemble, match, show_prob, show_scores):
                     st.markdown(f'<div style="padding: 10px; background-color: #d1ecf1; border-radius: 5px; color: #0c5460;"><b>Prediction:</b> {pred_flag}<b>{pred_abbr}</b> ({winner_prob:.0%})</div>', unsafe_allow_html=True)
                 else:
                     st.markdown(f'<div style="padding: 10px; background-color: #d1ecf1; border-radius: 5px; color: #0c5460;"><b>Prediction:</b> Draw ({winner_prob:.0%})</div>', unsafe_allow_html=True)
+
+            if show_scores:
+                st.caption(
+                    f"Placar previsto: {predicted_home}–{predicted_away} · "
+                    f"Gols esperados: "
+                    f"{prediction['expected_goals_home']:.1f}–"
+                    f"{prediction['expected_goals_away']:.1f}"
+                )
             
             st.divider()
         

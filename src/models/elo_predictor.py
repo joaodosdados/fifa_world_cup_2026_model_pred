@@ -63,8 +63,8 @@ class ELOPredictor:
         Returns:
             Tuple of (new_rating_a, new_rating_b)
         """
-        rating_a = self.get_rating(team_a)
-        rating_b = self.get_rating(team_b)
+        rating_a = self.ratings.get(team_a, self.initial_rating)
+        rating_b = self.ratings.get(team_b, self.initial_rating)
         
         # Apply home advantage
         if is_home_a:
@@ -100,8 +100,8 @@ class ELOPredictor:
         Returns:
             Dictionary with win/draw/loss probabilities
         """
-        rating_a = self.get_rating(team_a)
-        rating_b = self.get_rating(team_b)
+        rating_a = self.ratings.get(team_a, self.initial_rating)
+        rating_b = self.ratings.get(team_b, self.initial_rating)
         
         # Apply home advantage
         if is_home_a:
@@ -125,6 +125,9 @@ class ELOPredictor:
             win_b = (1 - expected_a) - (draw_prob / 2)
             win_a = expected_a - (draw_prob / 2)
         
+        win_a = max(0.0, win_a)
+        win_b = max(0.0, win_b)
+
         # Ensure probabilities sum to 1
         total = win_a + draw_prob + win_b
         
