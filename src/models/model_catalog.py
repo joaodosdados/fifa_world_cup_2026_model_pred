@@ -29,6 +29,10 @@ def _display_name(model_id: str, model: Any) -> str:
     return names.get(model_id, f"ML · {type(model).__name__}")
 
 
+def _estimator_display_target(model: Any) -> Any:
+    return getattr(model, "outcome_model", model)
+
+
 def build_model_catalog(matches: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     """Load all persisted ML models plus the statistical ELO/Poisson model."""
     manager = ModelManager()
@@ -49,7 +53,7 @@ def build_model_catalog(matches: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
 
         catalog[model_id] = {
             "id": model_id,
-            "label": _display_name(model_id, estimator),
+            "label": _display_name(model_id, _estimator_display_target(estimator)),
             "kind": "machine_learning",
             "predictor": predictor,
             "estimator": estimator,

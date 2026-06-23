@@ -10,7 +10,11 @@ from src.models.model_catalog import (
 
 @pytest.fixture(scope="module")
 def catalog():
-    matches = DataLoader().load_matches(processed=False)
+    matches = DataLoader().load_international_matches(
+        min_year=2010,
+        max_date="2026-06-10",
+        min_team_matches=30,
+    )
     return build_model_catalog(matches)
 
 
@@ -60,24 +64,19 @@ def test_display_and_historical_team_names_produce_same_prediction(catalog):
         assert localized["away_win"] == pytest.approx(historical["away_win"])
 
 
-def test_ml_score_prediction_matches_predicted_outcome(catalog):
+def test_ml_models_use_dedicated_goal_predictions(catalog):
     for item in catalog.values():
         if item["kind"] != "machine_learning":
             continue
 
         prediction = item["predictor"].predict_match("Brazil", "Germany")
         home_goals, away_goals = prediction["most_likely_score"]
-        predicted = max(
-            ("home_win", "draw", "away_win"),
-            key=prediction.get,
-        )
 
-        if predicted == "home_win":
-            assert home_goals > away_goals
-        elif predicted == "away_win":
-            assert away_goals > home_goals
-        else:
-            assert home_goals == away_goals
+        assert prediction["goal_model_name"] != "historical_fallback"
+        assert prediction["expected_goals_home"] >= 0.05
+        assert prediction["expected_goals_away"] >= 0.05
+        assert 0 <= home_goals <= 8
+        assert 0 <= away_goals <= 8
 
 
 def test_model_rank_orders_highest_accuracy_first(catalog):

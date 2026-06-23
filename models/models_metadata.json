@@ -5,6 +5,8 @@
       "accuracy": 0.5946569920844327,
       "cv_mean": 0.5840756625976026,
       "cv_std": 0.015666667882929426,
+      "goals_mae": 0.9286910002408792,
+      "goals_rmse": 1.2425755795806606,
       "confusion_matrix": [
         [
           572,
@@ -76,6 +78,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "Pipeline",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -91,62 +94,64 @@
     },
     "description": "Logistic Regression treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/logistic_regression.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": true
   },
   "random_forest": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5775065963060686,
-      "cv_mean": 0.5594413284944463,
-      "cv_std": 0.009642718670090386,
+      "accuracy": 0.5808047493403694,
+      "cv_mean": 0.5604311008468053,
+      "cv_std": 0.011321520740465146,
+      "goals_mae": 0.9470234502621406,
+      "goals_rmse": 1.2514484654317475,
       "confusion_matrix": [
         [
-          563,
-          105,
-          229
+          567,
+          102,
+          228
         ],
         [
-          250,
-          94,
-          365
+          251,
+          103,
+          355
         ],
         [
-          200,
-          132,
-          1094
+          198,
+          137,
+          1091
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5557749259624877,
-          "recall": 0.6276477146042363,
-          "f1-score": 0.5895287958115183,
+          "precision": 0.5580708661417323,
+          "recall": 0.6321070234113713,
+          "f1-score": 0.5927861996863565,
           "support": 897.0
         },
         "draw": {
-          "precision": 0.283987915407855,
-          "recall": 0.1325811001410437,
-          "f1-score": 0.18076923076923077,
+          "precision": 0.30116959064327486,
+          "recall": 0.14527503526093088,
+          "f1-score": 0.19600380589914368,
           "support": 709.0
         },
         "home_win": {
-          "precision": 0.6481042654028436,
-          "recall": 0.7671809256661991,
-          "f1-score": 0.7026332691072575,
+          "precision": 0.6517323775388292,
+          "recall": 0.7650771388499299,
+          "f1-score": 0.7038709677419355,
           "support": 1426.0
         },
-        "accuracy": 0.5775065963060686,
+        "accuracy": 0.5808047493403694,
         "macro avg": {
-          "precision": 0.4959557022577288,
-          "recall": 0.5091365801371598,
-          "f1-score": 0.49097709856266886,
+          "precision": 0.5036576114412789,
+          "recall": 0.5141530658407439,
+          "f1-score": 0.4975536577758119,
           "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5356445326771028,
-          "recall": 0.5775065963060686,
-          "f1-score": 0.5471397612814201,
+          "precision": 0.5420478816179375,
+          "recall": 0.5808047493403694,
+          "f1-score": 0.5522479945584283,
           "support": 3032.0
         }
       },
@@ -171,6 +176,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "RandomForestRegressor",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -186,62 +192,64 @@
     },
     "description": "Random Forest treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/random_forest.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": false
   },
   "gradient_boosting": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.587730870712401,
-      "cv_mean": 0.557241834378093,
-      "cv_std": 0.023797265966979394,
+      "accuracy": 0.5910290237467019,
+      "cv_mean": 0.5707687231936655,
+      "cv_std": 0.019107135909693512,
+      "goals_mae": 0.9378251854200426,
+      "goals_rmse": 1.2407755758735288,
       "confusion_matrix": [
         [
-          543,
-          40,
-          314
+          552,
+          29,
+          316
         ],
         [
-          243,
-          40,
-          426
+          244,
+          27,
+          438
         ],
         [
           177,
-          50,
-          1199
+          36,
+          1213
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5638629283489096,
-          "recall": 0.6053511705685619,
-          "f1-score": 0.5838709677419355,
+          "precision": 0.5673175745118191,
+          "recall": 0.6153846153846154,
+          "f1-score": 0.5903743315508021,
           "support": 897.0
         },
         "draw": {
-          "precision": 0.3076923076923077,
-          "recall": 0.056417489421720736,
-          "f1-score": 0.09535160905840286,
+          "precision": 0.29347826086956524,
+          "recall": 0.0380818053596615,
+          "f1-score": 0.06741573033707865,
           "support": 709.0
         },
         "home_win": {
-          "precision": 0.6183599793708097,
-          "recall": 0.8408134642356241,
-          "f1-score": 0.712630014858841,
+          "precision": 0.6166751398068124,
+          "recall": 0.8506311360448808,
+          "f1-score": 0.7150014736221633,
           "support": 1426.0
         },
-        "accuracy": 0.587730870712401,
+        "accuracy": 0.5910290237467019,
         "macro avg": {
-          "precision": 0.4966384051373423,
-          "recall": 0.5008607080753023,
-          "f1-score": 0.46395086388639317,
+          "precision": 0.4924903250627322,
+          "recall": 0.5013658522630525,
+          "f1-score": 0.45759717850334797,
           "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.529591102726119,
-          "recall": 0.587730870712401,
-          "f1-score": 0.5301935851172926,
+          "precision": 0.5264969329347421,
+          "recall": 0.5910290237467019,
+          "f1-score": 0.5267004055393347,
           "support": 3032.0
         }
       },
@@ -266,6 +274,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "MultiOutputRegressor",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -281,7 +290,7 @@
     },
     "description": "Gradient Boosting treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/gradient_boosting.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": false
   },
   "svm": {
@@ -290,6 +299,8 @@
       "accuracy": 0.5524406332453826,
       "cv_mean": 0.5321676014516662,
       "cv_std": 0.006581965471217435,
+      "goals_mae": 0.9286910002408792,
+      "goals_rmse": 1.2425755795806606,
       "confusion_matrix": [
         [
           521,
@@ -361,6 +372,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "Pipeline",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -376,7 +388,7 @@
     },
     "description": "SVM treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/svm.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": false
   },
   "k-nearest_neighbors": {
@@ -385,6 +397,8 @@
       "accuracy": 0.5610158311345647,
       "cv_mean": 0.5425052237985263,
       "cv_std": 0.011098186131347516,
+      "goals_mae": 0.9499779196730737,
+      "goals_rmse": 1.2623510158792814,
       "confusion_matrix": [
         [
           493,
@@ -456,6 +470,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "Pipeline",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -471,7 +486,7 @@
     },
     "description": "K-Nearest Neighbors treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/k-nearest_neighbors.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": false
   },
   "naive_bayes": {
@@ -480,6 +495,8 @@
       "accuracy": 0.566622691292876,
       "cv_mean": 0.5440448696799737,
       "cv_std": 0.009708966657579775,
+      "goals_mae": 0.9285997295830618,
+      "goals_rmse": 1.2424341165391115,
       "confusion_matrix": [
         [
           486,
@@ -551,6 +568,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "Pipeline",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -566,62 +584,64 @@
     },
     "description": "Naive Bayes treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/naive_bayes.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": false
   },
   "ensemble_top3": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5926781002638523,
-      "cv_mean": 0.5781370284834488,
-      "cv_std": 0.016901076520477426,
+      "accuracy": 0.5933377308707124,
+      "cv_mean": 0.5797866490707136,
+      "cv_std": 0.016973910936453257,
+      "goals_mae": 0.9378251854200426,
+      "goals_rmse": 1.2407755758735288,
       "confusion_matrix": [
         [
           580,
-          9,
-          308
+          8,
+          309
         ],
         [
-          267,
-          18,
-          424
+          266,
+          13,
+          430
         ],
         [
           210,
-          17,
-          1199
+          10,
+          1206
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5487228003784295,
+          "precision": 0.5492424242424242,
           "recall": 0.6465997770345596,
-          "f1-score": 0.593654042988741,
+          "f1-score": 0.593958013312852,
           "support": 897.0
         },
         "draw": {
-          "precision": 0.4090909090909091,
-          "recall": 0.02538787023977433,
-          "f1-score": 0.04780876494023904,
+          "precision": 0.41935483870967744,
+          "recall": 0.018335684062059238,
+          "f1-score": 0.03513513513513514,
           "support": 709.0
         },
         "home_win": {
-          "precision": 0.6209218021750389,
-          "recall": 0.8408134642356241,
-          "f1-score": 0.7143282692880548,
+          "precision": 0.6200514138817481,
+          "recall": 0.8457223001402524,
+          "f1-score": 0.7155146840700088,
           "support": 1426.0
         },
-        "accuracy": 0.5926781002638523,
+        "accuracy": 0.5933377308707124,
         "macro avg": {
-          "precision": 0.5262451705481258,
-          "recall": 0.504267037169986,
-          "f1-score": 0.45193035907234497,
+          "precision": 0.5295495589446165,
+          "recall": 0.5035525870789571,
+          "f1-score": 0.448202610839332,
           "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5500278022382953,
-          "recall": 0.5926781002638523,
-          "f1-score": 0.5227691962098602,
+          "precision": 0.5521722794808669,
+          "recall": 0.5933377308707124,
+          "f1-score": 0.5204535251438891,
           "support": 3032.0
         }
       },
@@ -646,6 +666,7 @@
         "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
+      "goal_model": "MultiOutputRegressor",
       "includes_current_2026_results": false,
       "data_source": "international",
       "include_friendlies": true,
@@ -666,7 +687,7 @@
     },
     "description": "Ensemble Top 3 treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/ensemble_top3.pkl",
-    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "saved_at": "2026-06-23T20:59:26.302248+00:00",
     "active": false
   }
 }

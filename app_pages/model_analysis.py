@@ -76,8 +76,9 @@ def show_metadata(model):
     accuracy = metric_value(metrics, "accuracy")
     validation = metric_value(metrics, "cv_mean", "cv_score")
     validation_std = metric_value(metrics, "cv_std")
+    goals_mae = metric_value(metrics, "goals_mae")
 
-    columns = st.columns(3)
+    columns = st.columns(4)
     columns[0].metric(
         "Acurácia registrada",
         f"{accuracy:.1%}" if accuracy is not None else "Não informada",
@@ -89,6 +90,10 @@ def show_metadata(model):
     columns[2].metric(
         "Desvio da validação",
         f"{validation_std:.3f}" if validation_std is not None else "Não informado",
+    )
+    columns[3].metric(
+        "MAE gols",
+        f"{goals_mae:.2f}" if goals_mae is not None else "Não informado",
     )
 
     st.info(model["description"])
@@ -130,11 +135,12 @@ def show_training_setup(model):
     leakage_flag = metrics.get("includes_current_2026_results", False)
 
     st.markdown("### Dados e recorte do treino")
-    columns = st.columns(4)
+    columns = st.columns(5)
     columns[0].metric("Fonte", str(data_source))
     columns[1].metric("Partidas", f"{len(matches):,}")
     columns[2].metric("Features", len(MODEL_FEATURE_NAMES))
     columns[3].metric("Leakage 2026", "Sim" if leakage_flag else "Não")
+    columns[4].metric("Regressor gols", str(metrics.get("goal_model", "—")))
 
     st.caption(
         "O modelo padrão é treinado apenas com dados disponíveis antes da Copa "
@@ -197,6 +203,16 @@ def unwrap_pipeline(estimator):
         return estimator, []
     steps = list(estimator.named_steps.values())
     return steps[-1], [type(step).__name__ for step in steps[:-1]]
+
+
+def outcome_estimator(estimator):
+    """Return the classifier inside a MatchModelBundle, if present."""
+    return getattr(estimator, "outcome_model", estimator)
+
+
+def goal_estimator(estimator):
+    """Return the goal regressor inside a MatchModelBundle, if present."""
+    return getattr(estimator, "goals_model", None)
 
 
 def make_importance_frame(
@@ -347,7 +363,7 @@ def show_model_feature_importance(model):
         show_statistical_feature_importance(model)
         return
 
-    estimator = model["estimator"]
+    estimator = outcome_estimator(model["estimator"])
     estimator_name = type(estimator).__name__
     matches = st.session_state.get("training_matches")
 
@@ -416,6 +432,19 @@ def show_statistical_feature_importance(model):
 
 
 def show_estimator_analysis(estimator):
+    goals_model = goal_estimator(estimator)
+    if goals_model is not None:
+        st.markdown("### Arquitetura: resultado + gols")
+        cols = st.columns(2)
+        cols[0].metric("Modelo de resultado", type(outcome_estimator(estimator)).__name__)
+        cols[1].metric("Modelo de gols", type(goals_model).__name__)
+        st.write(
+            "Este artefato separa duas tarefas: um classificador prevê "
+            "**vitória/empate/derrota** e um regressor multi-output prevê "
+            "**gols esperados do mandante e visitante**."
+        )
+        estimator = outcome_estimator(estimator)
+
     if type(estimator).__name__ == "Pipeline":
         steps = list(estimator.named_steps.values())
         preprocessing = [type(step).__name__ for step in steps[:-1]]

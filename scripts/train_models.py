@@ -21,27 +21,37 @@ from scipy.stats import randint, uniform
 from sklearn.base import clone
 from sklearn.ensemble import (
     GradientBoostingClassifier,
+    GradientBoostingRegressor,
     RandomForestClassifier,
+    RandomForestRegressor,
     VotingClassifier,
 )
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.linear_model import BayesianRidge, LogisticRegression, Ridge
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    mean_absolute_error,
+    mean_squared_error,
+)
 from sklearn.model_selection import (
     RandomizedSearchCV,
     TimeSeriesSplit,
     cross_val_score,
 )
 from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.multioutput import MultiOutputRegressor
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.loader import DataLoader
 from src.models.features import FEATURE_NAMES, build_temporal_training_data
+from src.models.model_bundle import MatchModelBundle
 
 
 MODEL_LABELS = {
@@ -59,9 +69,12 @@ MODEL_LABELS = {
 class Evaluation:
     model_id: str
     estimator: Any
+    goals_estimator: Any
     accuracy: float
     cv_mean: float
     cv_std: float
+    goals_mae: float
+    goals_rmse: float
     confusion_matrix: list[list[int]]
     classification_report: Dict[str, Any]
 
@@ -74,7 +87,7 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
             LogisticRegression(max_iter=2000, random_state=random_state),
         ),
         "random_forest": RandomForestClassifier(
-            n_estimators=150,
+            n_estimators=120,
             max_depth=14,
             min_samples_leaf=3,
             class_weight="balanced_subsample",
@@ -82,7 +95,7 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
             n_jobs=-1,
         ),
         "gradient_boosting": GradientBoostingClassifier(
-            n_estimators=120,
+            n_estimators=80,
             learning_rate=0.05,
             max_depth=3,
             random_state=random_state,
@@ -101,6 +114,41 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
         ),
         "naive_bayes": GaussianNB(),
     }
+
+
+def build_goal_regressor(model_id: str, random_state: int) -> Any:
+    """Return a goal regressor aligned with the selected model family."""
+    if model_id == "random_forest":
+        return RandomForestRegressor(
+            n_estimators=80,
+            max_depth=12,
+            min_samples_leaf=3,
+            random_state=random_state,
+            n_jobs=-1,
+        )
+    if model_id in {"gradient_boosting", "ensemble_top3"}:
+        return MultiOutputRegressor(
+            GradientBoostingRegressor(
+                n_estimators=80,
+                learning_rate=0.05,
+                max_depth=3,
+                random_state=random_state,
+            )
+        )
+    if model_id == "k-nearest_neighbors":
+        return make_pipeline(
+            StandardScaler(),
+            KNeighborsRegressor(n_neighbors=15, weights="distance"),
+        )
+    if model_id == "naive_bayes":
+        return make_pipeline(
+            StandardScaler(),
+            MultiOutputRegressor(BayesianRidge()),
+        )
+    return make_pipeline(
+        StandardScaler(),
+        MultiOutputRegressor(Ridge(alpha=2.0)),
+    )
 
 
 # Distribuições de busca para RandomizedSearchCV. Os nomes dos parâmetros
@@ -194,16 +242,29 @@ def temporal_split(
 def evaluate_estimator(
     model_id: str,
     estimator: Any,
+    goals_estimator: Any,
     X_train: np.ndarray,
     y_train: np.ndarray,
+    y_goals_train: np.ndarray,
     X_test: np.ndarray,
     y_test: np.ndarray,
+    y_goals_test: np.ndarray,
     cv_folds: int,
 ) -> Evaluation:
     """Fit one estimator and calculate temporal holdout/CV metrics."""
     fitted = clone(estimator).fit(X_train, y_train)
     predictions = fitted.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
+
+    fitted_goals = clone(goals_estimator).fit(X_train, y_goals_train)
+    goal_predictions = np.clip(fitted_goals.predict(X_test), 0, None)
+    goals_mae = mean_absolute_error(y_goals_test, goal_predictions)
+    goals_rmse = np.sqrt(
+        mean_squared_error(
+            y_goals_test,
+            goal_predictions,
+        )
+    )
 
     cv = TimeSeriesSplit(n_splits=cv_folds)
     scores = cross_val_score(
@@ -219,9 +280,12 @@ def evaluate_estimator(
     return Evaluation(
         model_id=model_id,
         estimator=estimator,
+        goals_estimator=goals_estimator,
         accuracy=float(accuracy),
         cv_mean=float(scores.mean()),
         cv_std=float(scores.std()),
+        goals_mae=float(goals_mae),
+        goals_rmse=float(goals_rmse),
         confusion_matrix=confusion_matrix(
             y_test, predictions, labels=[0, 1, 2]
         ).tolist(),
@@ -276,7 +340,10 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
             schedule_path=args.schedule_path,
         )
     X, y, context = build_temporal_training_data(matches)
+    y_goals = context[["home_goals", "away_goals"]].to_numpy(dtype=float)
     X_train, X_test, y_train, y_test, split_index = temporal_split(X, y, args.test_size)
+    y_goals_train = y_goals[:split_index]
+    y_goals_test = y_goals[split_index:]
 
     print(
         f"Dados válidos: {len(matches)} | treino: {len(X_train)} | "
@@ -293,6 +360,7 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
 
     for model_id, estimator in estimators.items():
         print(f"Treinando {MODEL_LABELS[model_id]}...")
+        goals_estimator = build_goal_regressor(model_id, args.random_state)
         if args.tune and model_id in PARAM_DISTRIBUTIONS:
             print(f"  buscando hiperparâmetros ({args.tune_iter} combinações)...")
             estimator = tune_estimator(
@@ -308,20 +376,28 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
         evaluation = evaluate_estimator(
             model_id,
             estimator,
+            goals_estimator,
             X_train,
             y_train,
+            y_goals_train,
             X_test,
             y_test,
+            y_goals_test,
             args.cv_folds,
         )
         evaluations[model_id] = evaluation
         print(
             f"  holdout={evaluation.accuracy:.1%} | "
-            f"cv={evaluation.cv_mean:.1%} ± {evaluation.cv_std:.1%}"
+            f"cv={evaluation.cv_mean:.1%} ± {evaluation.cv_std:.1%} | "
+            f"gols MAE={evaluation.goals_mae:.2f}"
         )
 
     if not args.no_ensemble:
         ensemble, top_ids = create_top3_ensemble(evaluations)
+        ensemble_goals_estimator = build_goal_regressor(
+            "ensemble_top3",
+            args.random_state,
+        )
         print(
             "Treinando Ensemble Top 3: "
             + ", ".join(MODEL_LABELS[model_id] for model_id in top_ids)
@@ -329,10 +405,13 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
         ensemble_evaluation = evaluate_estimator(
             "ensemble_top3",
             ensemble,
+            ensemble_goals_estimator,
             X_train,
             y_train,
+            y_goals_train,
             X_test,
             y_test,
+            y_goals_test,
             args.cv_folds,
         )
         ensemble_evaluation.classification_report["ensemble_models"] = top_ids
@@ -340,13 +419,15 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
         print(
             f"  holdout={ensemble_evaluation.accuracy:.1%} | "
             f"cv={ensemble_evaluation.cv_mean:.1%} ± "
-            f"{ensemble_evaluation.cv_std:.1%}"
+            f"{ensemble_evaluation.cv_std:.1%} | "
+            f"gols MAE={ensemble_evaluation.goals_mae:.2f}"
         )
 
     publish_models(
         evaluations=evaluations,
         X=X,
         y=y,
+        y_goals=y_goals,
         output_dir=args.output_dir,
         training_rows=len(X_train),
         test_rows=len(X_test),
@@ -369,6 +450,8 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
                 "accuracy": evaluation.accuracy,
                 "cv_mean": evaluation.cv_mean,
                 "cv_std": evaluation.cv_std,
+                "goals_mae": evaluation.goals_mae,
+                "goals_rmse": evaluation.goals_rmse,
             }
             for model_id, evaluation in evaluations.items()
         ]
@@ -383,6 +466,7 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
                 "accuracy": "{:.1%}".format,
                 "cv_mean": "{:.1%}".format,
                 "cv_std": "{:.1%}".format,
+                "goals_mae": "{:.2f}".format,
             },
         )
     )
@@ -394,6 +478,7 @@ def publish_models(
     evaluations: Dict[str, Evaluation],
     X: np.ndarray,
     y: np.ndarray,
+    y_goals: np.ndarray,
     output_dir: Path,
     training_rows: int,
     test_rows: int,
@@ -422,7 +507,16 @@ def publish_models(
         staging = Path(temporary_directory)
 
         for model_id, evaluation in evaluations.items():
-            production_model = clone(evaluation.estimator).fit(X, y)
+            production_outcome_model = clone(evaluation.estimator).fit(X, y)
+            production_goals_model = clone(evaluation.goals_estimator).fit(
+                X,
+                y_goals,
+            )
+            production_model = MatchModelBundle(
+                outcome_model=production_outcome_model,
+                goals_model=production_goals_model,
+                model_id=model_id,
+            )
             staged_model = staging / f"{model_id}.pkl"
             with staged_model.open("wb") as model_file:
                 pickle.dump(production_model, model_file)
@@ -433,10 +527,13 @@ def publish_models(
                 "accuracy": evaluation.accuracy,
                 "cv_mean": evaluation.cv_mean,
                 "cv_std": evaluation.cv_std,
+                "goals_mae": evaluation.goals_mae,
+                "goals_rmse": evaluation.goals_rmse,
                 "confusion_matrix": evaluation.confusion_matrix,
                 "classification_report": report,
                 "features": FEATURE_NAMES,
                 "feature_method": "chronological_pre_match_expanding_stats",
+                "goal_model": type(evaluation.goals_estimator).__name__,
                 "includes_current_2026_results": includes_current_2026_results,
                 "data_source": data_source,
                 "include_friendlies": include_friendlies,

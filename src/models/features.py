@@ -222,6 +222,8 @@ def build_temporal_training_data(
                 "year": int(match["Year"]) if pd.notna(match.get("Year")) else None,
                 "home_team": home,
                 "away_team": away,
+                "home_goals": home_goals,
+                "away_goals": away_goals,
                 "tournament": match.get("Tournament", "Unknown"),
                 "neutral": bool(neutral_site),
             }

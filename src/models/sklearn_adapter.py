@@ -82,9 +82,15 @@ class SklearnMatchPredictor:
         return {int(label): float(probability) for label, probability in zip(classes, values)}
 
     def _predict_expected_goals(
-        self, team_a: str, team_b: str, is_home_a: bool
+        self, team_a: str, team_b: str, is_home_a: bool, X: np.ndarray | None = None
     ) -> tuple[float, float]:
-        """Estimate goals from both teams' attack and defensive history."""
+        """Predict goals with the dedicated regressor when available."""
+        if X is not None and hasattr(self.model, "predict_goals"):
+            predicted = np.asarray(self.model.predict_goals(X)[0], dtype=float)
+            if len(predicted) >= 2 and np.all(np.isfinite(predicted[:2])):
+                return max(0.05, predicted[0]), max(0.05, predicted[1])
+
+        # Backwards-compatible fallback for old artifacts without a goal model.
         from src.utils.team_names import normalize_team_name
 
         home_stats = self.team_stats.get(
@@ -114,22 +120,14 @@ class SklearnMatchPredictor:
     def _most_likely_score(
         expected_home: float,
         expected_away: float,
-        predicted_outcome: str,
         max_goals: int = 8,
     ) -> tuple[int, int]:
-        """Select the likeliest Poisson score consistent with the ML outcome."""
+        """Select the likeliest Poisson score from the goal regressor outputs."""
         best_score = (0, 0)
         best_probability = -1.0
 
         for home_goals in range(max_goals + 1):
             for away_goals in range(max_goals + 1):
-                if predicted_outcome == 'home' and home_goals <= away_goals:
-                    continue
-                if predicted_outcome == 'away' and away_goals <= home_goals:
-                    continue
-                if predicted_outcome == 'draw' and home_goals != away_goals:
-                    continue
-
                 probability = poisson.pmf(
                     home_goals, expected_home
                 ) * poisson.pmf(away_goals, expected_away)
@@ -161,24 +159,11 @@ class SklearnMatchPredictor:
         home_win = probabilities.get(2, 0.0)
         
         expected_goals_home, expected_goals_away = self._predict_expected_goals(
-            team_a, team_b, is_home_a
-        )
-        predicted_outcome = max(
-            {
-                'home': home_win,
-                'draw': draw,
-                'away': away_win,
-            },
-            key={
-                'home': home_win,
-                'draw': draw,
-                'away': away_win,
-            }.get,
+            team_a, team_b, is_home_a, X
         )
         most_likely_score = self._most_likely_score(
             expected_goals_home,
             expected_goals_away,
-            predicted_outcome,
         )
         
         return {
@@ -189,7 +174,10 @@ class SklearnMatchPredictor:
             'expected_goals_away': expected_goals_away,
             'most_likely_score': most_likely_score,
             'model_type': 'sklearn',
-            'model_name': type(self.model).__name__
+            'model_name': type(getattr(self.model, "outcome_model", self.model)).__name__,
+            'goal_model_name': type(getattr(self.model, "goals_model", None)).__name__
+            if hasattr(self.model, "goals_model")
+            else "historical_fallback",
         }
     
     def predict_winner(self, team_a: str, team_b: str, is_home_a: bool = True) -> str:

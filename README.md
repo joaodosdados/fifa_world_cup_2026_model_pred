@@ -62,7 +62,13 @@ atualizar as fontes externas e regenerar os modelos.
 ## Modelos
 
 O seletor mostra todos os artefatos disponíveis em `models/`, além de
-**ELO + Poisson**. Ao trocar de modelo:
+**ELO + Poisson**. Cada artefato ML combina dois estimadores:
+
+- um **classificador** para prever `home_win`, `draw` e `away_win`;
+- um **regressor multi-output** para prever `expected_goals_home` e
+  `expected_goals_away`.
+
+Ao trocar de modelo:
 
 1. o preditor ativo muda imediatamente;
 2. todas as partidas são recalculadas;
@@ -95,10 +101,12 @@ O pipeline:
 4. reserva os 20% mais recentes para teste temporal;
 5. treina Logistic Regression, Random Forest, Gradient Boosting, SVM, KNN e
    Naive Bayes;
-6. cria um ensemble de votação com os três melhores;
-7. calcula holdout, validação temporal, matriz de confusão e relatório por
-   classe;
-8. retreina os modelos com todo o histórico e publica os arquivos em `models/`
+6. treina um regressor de gols compatível com cada família de modelo;
+7. cria um ensemble de votação com os três melhores;
+8. calcula holdout, validação temporal, matriz de confusão, relatório por
+   classe, MAE e RMSE de gols;
+9. retreina os classificadores e regressores com todo o histórico e publica os
+   bundles em `models/`
    de forma atômica.
 
 Opções disponíveis:
