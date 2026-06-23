@@ -5,8 +5,15 @@ import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
 from src.utils.team_names import get_team_abbreviation, get_team_abbreviation_with_tooltip
+from src.models.schedule_predictions import prediction_for_match
 
-def display_match_card_compact(ensemble, match, show_prob, show_scores):
+def display_match_card_compact(
+    ensemble,
+    match,
+    show_prob,
+    show_scores,
+    predictions=None,
+):
     """Display compact match card using Streamlit components"""
     
     team_a = match['home_team']
@@ -14,9 +21,18 @@ def display_match_card_compact(ensemble, match, show_prob, show_scores):
     status = match['status']
     
     try:
-        # Get prediction
-        prediction = ensemble.predict_match(team_a, team_b, is_home_a=True)
-        predicted_winner = ensemble.predict_winner(team_a, team_b, is_home_a=True)
+        # Get precomputed prediction when available; fall back to direct
+        # inference for callers/tests that do not pass a prediction table.
+        prediction = prediction_for_match(predictions, match)
+        if prediction is None:
+            prediction = ensemble.predict_match(team_a, team_b, is_home_a=True)
+        predicted_winner = prediction.get("predicted_winner")
+        if not predicted_winner:
+            predicted_winner = ensemble.predict_winner(
+                team_a,
+                team_b,
+                is_home_a=True,
+            )
         
         # Determine winner probability
         if predicted_winner == team_a:

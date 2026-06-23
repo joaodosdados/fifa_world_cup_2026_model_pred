@@ -2,552 +2,671 @@
   "logistic_regression": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5727990097477952,
-      "cv_mean": 0.5557103064066853,
-      "cv_std": 0.006596635088359288,
+      "accuracy": 0.5946569920844327,
+      "cv_mean": 0.5840756625976026,
+      "cv_std": 0.015666667882929426,
       "confusion_matrix": [
         [
-          839,
-          0,
-          1051
+          572,
+          7,
+          318
         ],
         [
-          262,
-          0,
+          258,
+          7,
+          444
+        ],
+        [
+          197,
+          5,
           1224
-        ],
-        [
-          224,
-          0,
-          2863
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.6332075471698113,
-          "recall": 0.44391534391534393,
-          "f1-score": 0.5219284603421462,
-          "support": 1890.0
+          "precision": 0.5569620253164557,
+          "recall": 0.6376811594202898,
+          "f1-score": 0.5945945945945946,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 1486.0
+          "precision": 0.3684210526315789,
+          "recall": 0.009873060648801129,
+          "f1-score": 0.019230769230769232,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.5572207084468664,
-          "recall": 0.927437641723356,
-          "f1-score": 0.6961702127659575,
-          "support": 3087.0
+          "precision": 0.6163141993957704,
+          "recall": 0.8583450210378681,
+          "f1-score": 0.7174677608440797,
+          "support": 1426.0
         },
-        "accuracy": 0.5727990097477952,
+        "accuracy": 0.5946569920844327,
         "macro avg": {
-          "precision": 0.3968094185388926,
-          "recall": 0.45711766187956665,
-          "f1-score": 0.4060328910360346,
-          "support": 6463.0
+          "precision": 0.513899092447935,
+          "recall": 0.5019664137023198,
+          "f1-score": 0.4437643748898146,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.45132331597190467,
-          "recall": 0.5727990097477952,
-          "f1-score": 0.48514965756694517,
-          "support": 6463.0
+          "precision": 0.5407880974152437,
+          "recall": 0.5946569920844327,
+          "f1-score": 0.5178413567610899,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6"
     },
     "description": "Logistic Regression treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/logistic_regression.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
-    "active": false
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "active": true
   },
   "random_forest": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5492805198824076,
-      "cv_mean": 0.5302228412256268,
-      "cv_std": 0.005101288515664681,
+      "accuracy": 0.5775065963060686,
+      "cv_mean": 0.5594413284944463,
+      "cv_std": 0.009642718670090386,
       "confusion_matrix": [
         [
-          1000,
-          459,
-          431
+          563,
+          105,
+          229
         ],
         [
-          426,
-          416,
-          644
+          250,
+          94,
+          365
         ],
         [
-          385,
-          568,
-          2134
+          200,
+          132,
+          1094
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5521811154058531,
-          "recall": 0.5291005291005291,
-          "f1-score": 0.5403944879762227,
-          "support": 1890.0
+          "precision": 0.5557749259624877,
+          "recall": 0.6276477146042363,
+          "f1-score": 0.5895287958115183,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.2882882882882883,
-          "recall": 0.27994616419919244,
-          "f1-score": 0.28405599180607716,
-          "support": 1486.0
+          "precision": 0.283987915407855,
+          "recall": 0.1325811001410437,
+          "f1-score": 0.18076923076923077,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.6650046743533811,
-          "recall": 0.6912860382248137,
-          "f1-score": 0.6778907242693774,
-          "support": 3087.0
+          "precision": 0.6481042654028436,
+          "recall": 0.7671809256661991,
+          "f1-score": 0.7026332691072575,
+          "support": 1426.0
         },
-        "accuracy": 0.5492805198824076,
+        "accuracy": 0.5775065963060686,
         "macro avg": {
-          "precision": 0.5018246926825075,
-          "recall": 0.5001109105081785,
-          "f1-score": 0.5007804013505591,
-          "support": 6463.0
+          "precision": 0.4959557022577288,
+          "recall": 0.5091365801371598,
+          "f1-score": 0.49097709856266886,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5453950385644973,
-          "recall": 0.5492805198824076,
-          "f1-score": 0.547130040525833,
-          "support": 6463.0
+          "precision": 0.5356445326771028,
+          "recall": 0.5775065963060686,
+          "f1-score": 0.5471397612814201,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6"
     },
     "description": "Random Forest treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/random_forest.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
     "active": false
   },
   "gradient_boosting": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5823920779823611,
-      "cv_mean": 0.5579851439182916,
-      "cv_std": 0.005251186879174612,
+      "accuracy": 0.587730870712401,
+      "cv_mean": 0.557241834378093,
+      "cv_std": 0.023797265966979394,
       "confusion_matrix": [
         [
-          962,
-          31,
-          897
+          543,
+          40,
+          314
         ],
         [
-          356,
-          30,
-          1100
+          243,
+          40,
+          426
         ],
         [
-          295,
-          20,
-          2772
+          177,
+          50,
+          1199
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5964042157470552,
-          "recall": 0.508994708994709,
-          "f1-score": 0.5492435055666571,
-          "support": 1890.0
+          "precision": 0.5638629283489096,
+          "recall": 0.6053511705685619,
+          "f1-score": 0.5838709677419355,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.37037037037037035,
-          "recall": 0.020188425302826378,
-          "f1-score": 0.03828972559029994,
-          "support": 1486.0
+          "precision": 0.3076923076923077,
+          "recall": 0.056417489421720736,
+          "f1-score": 0.09535160905840286,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.5812539316418537,
-          "recall": 0.8979591836734694,
-          "f1-score": 0.7057026476578412,
-          "support": 3087.0
+          "precision": 0.6183599793708097,
+          "recall": 0.8408134642356241,
+          "f1-score": 0.712630014858841,
+          "support": 1426.0
         },
-        "accuracy": 0.5823920779823611,
+        "accuracy": 0.587730870712401,
         "macro avg": {
-          "precision": 0.5160095059197597,
-          "recall": 0.4757141059903349,
-          "f1-score": 0.4310786262715995,
-          "support": 6463.0
+          "precision": 0.4966384051373423,
+          "recall": 0.5008607080753023,
+          "f1-score": 0.46395086388639317,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5371971569102131,
-          "recall": 0.5823920779823611,
-          "f1-score": 0.5064943263295565,
-          "support": 6463.0
+          "precision": 0.529591102726119,
+          "recall": 0.587730870712401,
+          "f1-score": 0.5301935851172926,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6"
     },
     "description": "Gradient Boosting treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/gradient_boosting.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
     "active": false
   },
   "svm": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.530713291041312,
-      "cv_mean": 0.4991179201485608,
-      "cv_std": 0.004782927993756556,
+      "accuracy": 0.5524406332453826,
+      "cv_mean": 0.5321676014516662,
+      "cv_std": 0.006581965471217435,
       "confusion_matrix": [
         [
-          933,
-          664,
-          293
+          521,
+          261,
+          115
         ],
         [
-          328,
-          673,
-          485
+          207,
+          284,
+          218
         ],
         [
-          294,
-          969,
-          1824
+          165,
+          391,
+          870
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.6,
-          "recall": 0.4936507936507937,
-          "f1-score": 0.541654571843251,
-          "support": 1890.0
+          "precision": 0.5834266517357223,
+          "recall": 0.5808249721293199,
+          "f1-score": 0.582122905027933,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.2918473547267997,
-          "recall": 0.4528936742934051,
-          "f1-score": 0.354957805907173,
-          "support": 1486.0
+          "precision": 0.3034188034188034,
+          "recall": 0.4005641748942172,
+          "f1-score": 0.3452887537993921,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.7009992313604919,
-          "recall": 0.5908649173955296,
-          "f1-score": 0.6412374758305501,
-          "support": 3087.0
+          "precision": 0.7231920199501247,
+          "recall": 0.6100981767180925,
+          "f1-score": 0.6618486116394067,
+          "support": 1426.0
         },
-        "accuracy": 0.530713291041312,
+        "accuracy": 0.5524406332453826,
         "macro avg": {
-          "precision": 0.5309488620290972,
-          "recall": 0.5124697951132428,
-          "f1-score": 0.5126166178603248,
-          "support": 6463.0
+          "precision": 0.5366791583682168,
+          "recall": 0.5304957745805433,
+          "f1-score": 0.5297534234889106,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5773897255661246,
-          "recall": 0.530713291041312,
-          "f1-score": 0.5462934439502881,
-          "support": 6463.0
+          "precision": 0.5836838584036123,
+          "recall": 0.5524406332453826,
+          "f1-score": 0.5642381571410352,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6"
     },
     "description": "SVM treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/svm.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
     "active": false
   },
   "k-nearest_neighbors": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5430914436020424,
-      "cv_mean": 0.5263231197771587,
-      "cv_std": 0.004502531794319153,
+      "accuracy": 0.5610158311345647,
+      "cv_mean": 0.5425052237985263,
+      "cv_std": 0.011098186131347516,
       "confusion_matrix": [
         [
-          889,
-          256,
-          745
+          493,
+          129,
+          275
         ],
         [
-          356,
-          226,
-          904
+          203,
+          109,
+          397
         ],
         [
-          377,
-          315,
-          2395
+          183,
+          144,
+          1099
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5480887792848336,
-          "recall": 0.4703703703703704,
-          "f1-score": 0.5062642369020501,
-          "support": 1890.0
+          "precision": 0.5608646188850968,
+          "recall": 0.5496098104793757,
+          "f1-score": 0.5551801801801802,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.2835633626097867,
-          "recall": 0.15208613728129206,
-          "f1-score": 0.1979851073149365,
-          "support": 1486.0
+          "precision": 0.28534031413612565,
+          "recall": 0.153737658674189,
+          "f1-score": 0.1998166819431714,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.5922354104846687,
-          "recall": 0.7758341431810819,
-          "f1-score": 0.6717150469779835,
-          "support": 3087.0
+          "precision": 0.6205533596837944,
+          "recall": 0.770687237026648,
+          "f1-score": 0.6875195495777291,
+          "support": 1426.0
         },
-        "accuracy": 0.5430914436020424,
+        "accuracy": 0.5610158311345647,
         "macro avg": {
-          "precision": 0.4746291841264297,
-          "recall": 0.4660968836109148,
-          "f1-score": 0.45865479706498996,
-          "support": 6463.0
+          "precision": 0.4889194309016723,
+          "recall": 0.49134490206007086,
+          "f1-score": 0.4808388039003602,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5083542722965575,
-          "recall": 0.5430914436020424,
-          "f1-score": 0.5144096591731248,
-          "support": 6463.0
+          "precision": 0.5245088841594775,
+          "recall": 0.5610158311345647,
+          "f1-score": 0.5343237225650304,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6"
     },
     "description": "K-Nearest Neighbors treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/k-nearest_neighbors.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
     "active": false
   },
   "naive_bayes": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5115271545721801,
-      "cv_mean": 0.49178272980501403,
-      "cv_std": 0.013596815233415403,
+      "accuracy": 0.566622691292876,
+      "cv_mean": 0.5440448696799737,
+      "cv_std": 0.009708966657579775,
       "confusion_matrix": [
         [
-          538,
-          912,
-          440
+          486,
+          257,
+          154
         ],
         [
-          126,
-          734,
-          626
+          182,
+          245,
+          282
         ],
         [
-          134,
-          919,
-          2034
+          152,
+          287,
+          987
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.6741854636591479,
-          "recall": 0.28465608465608466,
-          "f1-score": 0.40029761904761907,
-          "support": 1890.0
+          "precision": 0.5926829268292683,
+          "recall": 0.5418060200668896,
+          "f1-score": 0.5661036691904484,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.2861598440545809,
-          "recall": 0.4939434724091521,
-          "f1-score": 0.362379659343372,
-          "support": 1486.0
+          "precision": 0.3105196451204056,
+          "recall": 0.3455571227080395,
+          "f1-score": 0.32710280373831774,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.6561290322580645,
-          "recall": 0.6588921282798834,
-          "f1-score": 0.6575076773880718,
-          "support": 3087.0
+          "precision": 0.6936050597329585,
+          "recall": 0.6921458625525947,
+          "f1-score": 0.6928746928746928,
+          "support": 1426.0
         },
-        "accuracy": 0.5115271545721801,
+        "accuracy": 0.566622691292876,
         "macro avg": {
-          "precision": 0.5388247799905977,
-          "recall": 0.4791638951150401,
-          "f1-score": 0.47339498525968765,
-          "support": 6463.0
+          "precision": 0.5322692105608775,
+          "recall": 0.5265030017758413,
+          "f1-score": 0.5286937219344864,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5763444804520411,
-          "recall": 0.5115271545721801,
-          "f1-score": 0.5144336800063791,
-          "support": 6463.0
+          "precision": 0.5741674897544261,
+          "recall": 0.566622691292876,
+          "f1-score": 0.5698384535467056,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6"
     },
     "description": "Naive Bayes treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/naive_bayes.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
     "active": false
   },
   "ensemble_top3": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.583475166331425,
-      "cv_mean": 0.5596100278551532,
-      "cv_std": 0.004858930300670725,
+      "accuracy": 0.5926781002638523,
+      "cv_mean": 0.5781370284834488,
+      "cv_std": 0.016901076520477426,
       "confusion_matrix": [
         [
-          990,
-          25,
-          875
+          580,
+          9,
+          308
         ],
         [
-          374,
-          19,
-          1093
+          267,
+          18,
+          424
         ],
         [
-          310,
-          15,
-          2762
+          210,
+          17,
+          1199
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5913978494623656,
-          "recall": 0.5238095238095238,
-          "f1-score": 0.5555555555555556,
-          "support": 1890.0
+          "precision": 0.5487228003784295,
+          "recall": 0.6465997770345596,
+          "f1-score": 0.593654042988741,
+          "support": 897.0
         },
         "draw": {
-          "precision": 0.3220338983050847,
-          "recall": 0.01278600269179004,
-          "f1-score": 0.02459546925566343,
-          "support": 1486.0
+          "precision": 0.4090909090909091,
+          "recall": 0.02538787023977433,
+          "f1-score": 0.04780876494023904,
+          "support": 709.0
         },
         "home_win": {
-          "precision": 0.5839323467230444,
-          "recall": 0.8947197926789764,
-          "f1-score": 0.7066649609824741,
-          "support": 3087.0
+          "precision": 0.6209218021750389,
+          "recall": 0.8408134642356241,
+          "f1-score": 0.7143282692880548,
+          "support": 1426.0
         },
-        "accuracy": 0.583475166331425,
+        "accuracy": 0.5926781002638523,
         "macro avg": {
-          "precision": 0.4991213648301649,
-          "recall": 0.4771051063934301,
-          "f1-score": 0.42893866193123104,
-          "support": 6463.0
+          "precision": 0.5262451705481258,
+          "recall": 0.504267037169986,
+          "f1-score": 0.45193035907234497,
+          "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5258987254679351,
-          "recall": 0.583475166331425,
-          "f1-score": 0.505651183949685,
-          "support": 6463.0
+          "precision": 0.5500278022382953,
+          "recall": 0.5926781002638523,
+          "f1-score": 0.5227691962098602,
+          "support": 3032.0
         }
       },
       "features": [
         "home_goals_scored",
         "home_goals_conceded",
         "home_win_rate",
+        "home_matches_played",
+        "home_recent_points",
+        "home_recent_goal_diff",
+        "home_elo",
         "away_goals_scored",
         "away_goals_conceded",
         "away_win_rate",
-        "home_advantage"
+        "away_matches_played",
+        "away_recent_points",
+        "away_recent_goal_diff",
+        "away_elo",
+        "elo_diff",
+        "home_advantage",
+        "neutral_site",
+        "tournament_importance"
       ],
       "feature_method": "chronological_pre_match_expanding_stats",
-      "training_samples": 25852,
-      "test_samples": 6463,
-      "test_start_year": 2019,
+      "includes_current_2026_results": false,
+      "data_source": "international",
+      "include_friendlies": true,
+      "min_year": 2010,
+      "cutoff_date": "2026-06-10",
+      "min_team_matches": 30,
+      "training_samples": 12124,
+      "test_samples": 3032,
+      "test_start_year": 2023,
       "random_state": 42,
       "sklearn_version": "1.9.0",
       "numpy_version": "2.4.6",
       "ensemble_models": [
-        "gradient_boosting",
         "logistic_regression",
+        "gradient_boosting",
         "random_forest"
       ]
     },
     "description": "Ensemble Top 3 treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/ensemble_top3.pkl",
-    "saved_at": "2026-06-19T23:54:07.680735+00:00",
-    "active": true
+    "saved_at": "2026-06-23T20:21:19.358717+00:00",
+    "active": false
   }
 }

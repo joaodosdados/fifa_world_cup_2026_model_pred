@@ -19,11 +19,13 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
+BASE_URL = "https://raw.githubusercontent.com/martj42/international_results/master"
+
 SOURCES = {
-    "international_results.csv": (
-        "https://raw.githubusercontent.com/martj42/"
-        "international_results/master/results.csv"
-    ),
+    "international_results.csv": f"{BASE_URL}/results.csv",
+    "goalscorers.csv": f"{BASE_URL}/goalscorers.csv",
+    "shootouts.csv": f"{BASE_URL}/shootouts.csv",
+    "former_names.csv": f"{BASE_URL}/former_names.csv",
 }
 
 

@@ -74,6 +74,98 @@ class DataLoader:
             logger.error(f"Error loading matches: {e}")
             raise
 
+    def load_current_world_cup_matches(
+        self,
+        schedule_path: str | Path | None = None,
+    ) -> pd.DataFrame:
+        """
+        Load completed 2026 World Cup matches from the dashboard schedule and
+        adapt them to the historical training schema.
+
+        Scheduled fixtures are deliberately ignored because they do not have a
+        target result yet. The returned rows can be appended to either the
+        WorldCupMatches dataset or the expanded international dataset.
+        """
+        file_path = Path(schedule_path) if schedule_path else self.data_dir / "2026_world_cup_schedule.csv"
+        if not file_path.exists():
+            logger.warning("2026 schedule not found: %s", file_path)
+            return pd.DataFrame()
+
+        schedule = pd.read_csv(file_path)
+        required = [
+            "match_id",
+            "home_team",
+            "away_team",
+            "date",
+            "home_score",
+            "away_score",
+            "status",
+        ]
+        missing = [column for column in required if column not in schedule.columns]
+        if missing:
+            raise ValueError(f"2026 schedule is missing columns: {missing}")
+
+        completed = schedule[
+            schedule["status"].astype(str).str.lower().eq("completed")
+        ].copy()
+        if completed.empty:
+            return pd.DataFrame()
+
+        completed["home_score"] = pd.to_numeric(
+            completed["home_score"], errors="coerce"
+        )
+        completed["away_score"] = pd.to_numeric(
+            completed["away_score"], errors="coerce"
+        )
+        completed = completed.dropna(
+            subset=["home_team", "away_team", "home_score", "away_score"]
+        )
+        if completed.empty:
+            return pd.DataFrame()
+
+        time_values = (
+            completed["time"].fillna("00:00")
+            if "time" in completed.columns
+            else "00:00"
+        )
+        dates = pd.to_datetime(
+            completed["date"].astype(str) + " " + time_values.astype(str),
+            errors="coerce",
+        )
+
+        adapted = pd.DataFrame({
+            "Year": dates.dt.year.fillna(2026).astype(int),
+            "Datetime": completed["date"].astype(str),
+            "Home Team Name": completed["home_team"].astype(str).str.strip(),
+            "Away Team Name": completed["away_team"].astype(str).str.strip(),
+            "Home Team Goals": completed["home_score"].astype(float),
+            "Away Team Goals": completed["away_score"].astype(float),
+            "Tournament": "FIFA World Cup",
+            "Neutral": ~completed["home_team"].isin(["México", "Canadá", "EUA"]),
+            "MatchID": 2_026_000 + pd.to_numeric(
+                completed["match_id"], errors="coerce"
+            ).fillna(0).astype(int),
+        })
+        return self._sanitize_matches(adapted)
+
+    def append_current_world_cup_results(
+        self,
+        matches: pd.DataFrame,
+        schedule_path: str | Path | None = None,
+    ) -> pd.DataFrame:
+        """Append completed 2026 matches to an existing training frame."""
+        current_matches = self.load_current_world_cup_matches(schedule_path)
+        if current_matches.empty:
+            return matches.reset_index(drop=True)
+
+        combined = pd.concat([matches, current_matches], ignore_index=True)
+        combined = self._sanitize_matches(combined)
+        logger.info(
+            "Training data now includes %d completed 2026 matches",
+            len(current_matches),
+        )
+        return combined.reset_index(drop=True)
+
     @staticmethod
     def _sanitize_matches(df: pd.DataFrame) -> pd.DataFrame:
         """Remove empty/duplicated rows and enforce the prediction schema."""
@@ -120,6 +212,8 @@ class DataLoader:
         self,
         include_friendlies: bool = True,
         min_year: int | None = None,
+        max_date: str | None = None,
+        min_team_matches: int | None = 30,
     ) -> pd.DataFrame:
         """
         Load the expanded international results dataset (World Cup,
@@ -131,6 +225,9 @@ class DataLoader:
             include_friendlies: If False, excludes "Friendly" matches,
                 keeping only competitive/official matches.
             min_year: If set, drop matches before this year.
+            max_date: If set, drop matches after this YYYY-MM-DD date.
+            min_team_matches: If set, keeps only teams with at least this many
+                matches inside the selected date window.
 
         Returns:
             DataFrame with the same columns as load_matches(): 'Year',
@@ -159,12 +256,27 @@ class DataLoader:
             'Away Team Name': df['away_team'].astype(str).str.strip(),
             'Home Team Goals': pd.to_numeric(df['home_score'], errors='coerce'),
             'Away Team Goals': pd.to_numeric(df['away_score'], errors='coerce'),
+            'Tournament': df['tournament'].astype(str).str.strip(),
+            'Neutral': df['neutral'].astype(bool),
         })
         adapted = adapted.dropna(
             subset=['Year', 'Home Team Goals', 'Away Team Goals']
         )
         if min_year is not None:
             adapted = adapted[adapted['Year'] >= min_year]
+        if max_date is not None:
+            cutoff = pd.to_datetime(max_date, errors='coerce')
+            match_dates = pd.to_datetime(adapted['Datetime'], errors='coerce')
+            adapted = adapted[match_dates <= cutoff]
+        if min_team_matches:
+            team_counts = pd.concat(
+                [adapted['Home Team Name'], adapted['Away Team Name']]
+            ).value_counts()
+            eligible = set(team_counts[team_counts >= min_team_matches].index)
+            adapted = adapted[
+                adapted['Home Team Name'].isin(eligible)
+                & adapted['Away Team Name'].isin(eligible)
+            ]
 
         adapted = adapted.sort_values(
             ['Datetime'], kind='stable'

@@ -36,9 +36,12 @@ def test_temporal_features_use_only_previous_matches():
 
     assert X.shape == (2, len(FEATURE_NAMES))
     assert X[0, 0] == pytest.approx(1.3)
-    assert X[0, 3] == pytest.approx(1.3)
+    assert X[0, 7] == pytest.approx(1.3)
     assert X[1, 0] == pytest.approx(0.0)
-    assert X[1, 3] == pytest.approx(2.0)
+    assert X[1, 7] == pytest.approx(2.0)
+    assert X[1, FEATURE_NAMES.index("home_recent_goal_diff")] == pytest.approx(-2.0)
+    assert X[1, FEATURE_NAMES.index("away_recent_goal_diff")] == pytest.approx(2.0)
+    assert X[1, FEATURE_NAMES.index("elo_diff")] < 0
     assert y.tolist() == [2, 1]
     assert context["year"].tolist() == [2000, 2004]
 

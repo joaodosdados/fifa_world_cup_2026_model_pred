@@ -5,14 +5,16 @@ Detailed group stage analysis
 import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
+from src.models.schedule_predictions import prediction_for_match
 
 # Access global state
 ensemble = st.session_state.get("predictor")
 schedule = st.session_state.get("schedule_2026")
+predictions = st.session_state.get("schedule_predictions")
 show_prob = st.session_state.get("show_probabilities", True)
 show_scores = st.session_state.get("show_scores", True)
 
-def show_group_stage_details(ensemble, schedule, show_prob, show_scores):
+def show_group_stage_details(ensemble, schedule, predictions, show_prob, show_scores):
     """Show detailed group stage view"""
     
     st.markdown("## Group Stage - Detailed View")
@@ -28,9 +30,9 @@ def show_group_stage_details(ensemble, schedule, show_prob, show_scores):
     
     for idx, match in group_data.iterrows():
         with st.expander(f"{match['home_team']} vs {match['away_team']} - {match['date']}"):
-            display_match_detailed(ensemble, match)
+            display_match_detailed(ensemble, match, predictions)
 
-def display_match_detailed(ensemble, match):
+def display_match_detailed(ensemble, match, predictions=None):
     """Display detailed match information"""
     
     team_a = match['home_team']
@@ -43,7 +45,9 @@ def display_match_detailed(ensemble, match):
     is_completed = status == 'Completed' and pd.notna(match.get('home_score')) and pd.notna(match.get('away_score'))
     
     try:
-        prediction = ensemble.predict_match(team_a, team_b, is_home_a=True)
+        prediction = prediction_for_match(predictions, match)
+        if prediction is None:
+            prediction = ensemble.predict_match(team_a, team_b, is_home_a=True)
         
         predicted_home, predicted_away = prediction['most_likely_score']
 
@@ -133,6 +137,6 @@ def display_match_detailed(ensemble, match):
 
 # Execute page
 if ensemble and schedule is not None:
-    show_group_stage_details(ensemble, schedule, show_prob, show_scores)
+    show_group_stage_details(ensemble, schedule, predictions, show_prob, show_scores)
 else:
     st.error("Failed to load predictor or schedule data")

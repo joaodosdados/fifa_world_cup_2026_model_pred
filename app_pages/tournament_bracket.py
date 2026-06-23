@@ -10,10 +10,11 @@ from src.components.match_display import display_match_card_compact
 # Access global state
 ensemble = st.session_state.get("predictor")
 schedule = st.session_state.get("schedule_2026")
+predictions = st.session_state.get("schedule_predictions")
 show_prob = st.session_state.get("show_probabilities", True)
 show_scores = st.session_state.get("show_scores", True)
 
-def show_tournament_bracket(ensemble, schedule, show_prob, show_scores):
+def show_tournament_bracket(ensemble, schedule, predictions, show_prob, show_scores):
     """Display tournament in bracket format"""
     
     # Tournament stages tabs
@@ -22,26 +23,26 @@ def show_tournament_bracket(ensemble, schedule, show_prob, show_scores):
     ])
     
     with tab1:
-        show_group_stage_expanded(ensemble, schedule, show_prob, show_scores)
+        show_group_stage_expanded(ensemble, schedule, predictions, show_prob, show_scores)
     
     with tab2:
         st.info("Octave-finals matches will be determined after group stage completion")
-        show_knockout_stage(ensemble, schedule, "Round of 16", show_prob, show_scores)
+        show_knockout_stage(ensemble, schedule, predictions, "Round of 16", show_prob, show_scores)
     
     with tab3:
         st.info("Quarter-finals will be determined after Octave-finals")
-        show_knockout_stage(ensemble, schedule, "Quarter-finals", show_prob, show_scores)
+        show_knockout_stage(ensemble, schedule, predictions, "Quarter-finals", show_prob, show_scores)
     
     with tab4:
         st.info("Semi-finals will be determined after Quarter-finals")
-        show_knockout_stage(ensemble, schedule, "Semi-finals", show_prob, show_scores)
+        show_knockout_stage(ensemble, schedule, predictions, "Semi-finals", show_prob, show_scores)
     
     with tab5:
         st.info("Final will be determined after Semi-finals")
-        show_knockout_stage(ensemble, schedule, "Final", show_prob, show_scores)
+        show_knockout_stage(ensemble, schedule, predictions, "Final", show_prob, show_scores)
 
 
-def show_group_stage_expanded(ensemble, schedule, show_prob, show_scores):
+def show_group_stage_expanded(ensemble, schedule, predictions, show_prob, show_scores):
     """Display group stage matches with selector"""
     
     # Get group stage matches
@@ -65,10 +66,10 @@ def show_group_stage_expanded(ensemble, schedule, show_prob, show_scores):
     st.markdown("---")
     
     # Display selected group
-    display_group_row(ensemble, group_matches, selected_group, show_prob, show_scores)
+    display_group_row(ensemble, group_matches, predictions, selected_group, show_prob, show_scores)
 
 
-def display_group_row(ensemble, matches, group, show_prob, show_scores):
+def display_group_row(ensemble, matches, predictions, group, show_prob, show_scores):
     """Display ONE GROUP as a complete ROW with all teams and matches"""
     
     group_data = matches[matches['group'] == group].sort_values('date')
@@ -82,10 +83,16 @@ def display_group_row(ensemble, matches, group, show_prob, show_scores):
         match_cols = st.columns(2)
         for idx, (_, match) in enumerate(group_data.iterrows()):
             with match_cols[idx % 2]:
-                display_match_card_compact(ensemble, match, show_prob, show_scores)
+                display_match_card_compact(
+                    ensemble,
+                    match,
+                    show_prob,
+                    show_scores,
+                    predictions=predictions,
+                )
 
 
-def show_knockout_stage(ensemble, schedule, stage_name, show_prob, show_scores):
+def show_knockout_stage(ensemble, schedule, predictions, stage_name, show_prob, show_scores):
     """Display knockout stage matches with visual bracket layout"""
     
     stage_matches = schedule[schedule['stage'] == stage_name]
@@ -246,11 +253,17 @@ def show_knockout_stage(ensemble, schedule, stage_name, show_prob, show_scores):
     for idx, match in stage_matches.iterrows():
         col = cols[idx % 2]
         with col:
-            display_match_card_compact(ensemble, match, show_prob, show_scores)
+            display_match_card_compact(
+                ensemble,
+                match,
+                show_prob,
+                show_scores,
+                predictions=predictions,
+            )
 
 
 # Execute page
 if ensemble and schedule is not None:
-    show_tournament_bracket(ensemble, schedule, show_prob, show_scores)
+    show_tournament_bracket(ensemble, schedule, predictions, show_prob, show_scores)
 else:
     st.error("Failed to load predictor or schedule data")

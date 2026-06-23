@@ -74,7 +74,7 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
             LogisticRegression(max_iter=2000, random_state=random_state),
         ),
         "random_forest": RandomForestClassifier(
-            n_estimators=200,
+            n_estimators=150,
             max_depth=14,
             min_samples_leaf=3,
             class_weight="balanced_subsample",
@@ -82,7 +82,7 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
             n_jobs=-1,
         ),
         "gradient_boosting": GradientBoostingClassifier(
-            n_estimators=200,
+            n_estimators=120,
             learning_rate=0.05,
             max_depth=3,
             random_state=random_state,
@@ -265,9 +265,16 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
         matches = loader.load_international_matches(
             include_friendlies=not args.no_friendlies,
             min_year=args.min_year,
+            max_date=args.cutoff_date,
+            min_team_matches=args.min_team_matches,
         )
     else:
         matches = loader.load_matches(processed=False)
+    if args.include_current_2026:
+        matches = loader.append_current_world_cup_results(
+            matches,
+            schedule_path=args.schedule_path,
+        )
     X, y, context = build_temporal_training_data(matches)
     X_train, X_test, y_train, y_test, split_index = temporal_split(X, y, args.test_size)
 
@@ -345,6 +352,12 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
         test_rows=len(X_test),
         test_start_year=context.iloc[split_index]["year"],
         random_state=args.random_state,
+        includes_current_2026_results=args.include_current_2026,
+        data_source=args.data_source,
+        include_friendlies=not args.no_friendlies,
+        min_year=args.min_year,
+        cutoff_date=args.cutoff_date,
+        min_team_matches=args.min_team_matches,
     )
 
     comparison = pd.DataFrame(
@@ -386,6 +399,12 @@ def publish_models(
     test_rows: int,
     test_start_year: int,
     random_state: int,
+    includes_current_2026_results: bool,
+    data_source: str,
+    include_friendlies: bool,
+    min_year: int | None,
+    cutoff_date: str | None,
+    min_team_matches: int | None,
 ) -> None:
     """Refit on all history and atomically replace models plus metadata."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -418,6 +437,12 @@ def publish_models(
                 "classification_report": report,
                 "features": FEATURE_NAMES,
                 "feature_method": "chronological_pre_match_expanding_stats",
+                "includes_current_2026_results": includes_current_2026_results,
+                "data_source": data_source,
+                "include_friendlies": include_friendlies,
+                "min_year": min_year,
+                "cutoff_date": cutoff_date,
+                "min_team_matches": min_team_matches,
                 "training_samples": training_rows,
                 "test_samples": test_rows,
                 "test_start_year": int(test_start_year),
@@ -473,7 +498,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--data-source",
         choices=["worldcup", "international"],
-        default="worldcup",
+        default="international",
         help=(
             "'worldcup' usa apenas data/raw/WorldCupMatches.csv (836 jogos). "
             "'international' usa data/raw/international_results.csv, com "
@@ -489,8 +514,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--min-year",
         type=int,
-        default=None,
+        default=2010,
         help="Com --data-source international, ano mínimo a considerar.",
+    )
+    parser.add_argument(
+        "--cutoff-date",
+        type=str,
+        default="2026-06-10",
+        help=(
+            "Com --data-source international, usa apenas partidas até esta "
+            "data (YYYY-MM-DD). O padrão evita vazamento dos jogos da Copa 2026."
+        ),
+    )
+    parser.add_argument(
+        "--min-team-matches",
+        type=int,
+        default=30,
+        help=(
+            "Com --data-source international, remove equipes com menos jogos "
+            "no recorte para reduzir ruído de seleções regionais/não-FIFA."
+        ),
     )
     parser.add_argument(
         "--output-dir",
@@ -499,12 +542,30 @@ def parse_args() -> argparse.Namespace:
         help="Diretório de saída dos arquivos .pkl e metadados.",
     )
     parser.add_argument(
+        "--schedule-path",
+        type=Path,
+        default=PROJECT_ROOT / "data" / "2026_world_cup_schedule.csv",
+        help=(
+            "CSV do calendário/resultados 2026 usado para incluir jogos "
+            "finalizados no treino."
+        ),
+    )
+    parser.add_argument(
+        "--include-current-2026",
+        action="store_true",
+        help=(
+            "Inclui resultados finalizados da Copa 2026 no treino. Use apenas "
+            "para simular previsões futuras; isso invalida a avaliação nesses "
+            "mesmos jogos por data leakage."
+        ),
+    )
+    parser.add_argument(
         "--test-size",
         type=float,
         default=0.20,
         help="Fração mais recente reservada para teste temporal.",
     )
-    parser.add_argument("--cv-folds", type=int, default=5)
+    parser.add_argument("--cv-folds", type=int, default=3)
     parser.add_argument("--random-state", type=int, default=42)
     parser.add_argument(
         "--no-ensemble",
