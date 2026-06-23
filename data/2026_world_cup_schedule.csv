@@ -13,36 +13,36 @@ match_id,group,home_team,away_team,date,time,venue,stage,home_score,away_score,s
 12,B,Catar,Suíça,2026-06-16,15:00,Stadium B6,Group Stage,1.0,1.0,Completed
 13,C,Escócia,Haiti,2026-06-11,15:00,Stadium C1,Group Stage,1.0,0.0,Completed
 14,C,Marrocos,Brasil,2026-06-12,15:00,Stadium C2,Group Stage,1.0,1.0,Completed
-15,C,Escócia,Marrocos,2026-06-13,15:00,Stadium C3,Group Stage,,,Scheduled
-16,C,Brasil,Haiti,2026-06-14,15:00,Stadium C4,Group Stage,,,Scheduled
+15,C,Escócia,Marrocos,2026-06-13,15:00,Stadium C3,Group Stage,0.0,1.0,Completed
+16,C,Brasil,Haiti,2026-06-14,15:00,Stadium C4,Group Stage,3.0,0.0,Completed
 17,C,Haiti,Marrocos,2026-06-15,15:00,Stadium C5,Group Stage,,,Scheduled
 18,C,Brasil,Escócia,2026-06-16,15:00,Stadium C6,Group Stage,,,Scheduled
 19,D,EUA,Paraguai,2026-06-11,15:00,Stadium D1,Group Stage,4.0,1.0,Completed
 20,D,Austrália,Turquia,2026-06-12,15:00,Stadium D2,Group Stage,2.0,0.0,Completed
-21,D,EUA,Austrália,2026-06-13,15:00,Stadium D3,Group Stage,,,Scheduled
-22,D,Turquia,Paraguai,2026-06-14,15:00,Stadium D4,Group Stage,,,Scheduled
+21,D,EUA,Austrália,2026-06-13,15:00,Stadium D3,Group Stage,2.0,0.0,Completed
+22,D,Turquia,Paraguai,2026-06-14,15:00,Stadium D4,Group Stage,0.0,1.0,Completed
 23,D,Paraguai,Austrália,2026-06-15,15:00,Stadium D5,Group Stage,,,Scheduled
 24,D,Turquia,EUA,2026-06-16,15:00,Stadium D6,Group Stage,,,Scheduled
 25,E,Alemanha,Curaçau,2026-06-11,15:00,Stadium E1,Group Stage,7.0,1.0,Completed
 26,E,Costa do Marfim,Equador,2026-06-12,15:00,Stadium E2,Group Stage,1.0,0.0,Completed
-27,E,Alemanha,Costa do Marfim,2026-06-13,15:00,Stadium E3,Group Stage,,,Scheduled
-28,E,Equador,Curaçau,2026-06-14,15:00,Stadium E4,Group Stage,,,Scheduled
+27,E,Alemanha,Costa do Marfim,2026-06-13,15:00,Stadium E3,Group Stage,2.0,1.0,Completed
+28,E,Equador,Curaçau,2026-06-14,15:00,Stadium E4,Group Stage,0.0,0.0,Completed
 29,E,Curaçau,Costa do Marfim,2026-06-15,15:00,Stadium E5,Group Stage,,,Scheduled
 30,E,Equador,Alemanha,2026-06-16,15:00,Stadium E6,Group Stage,,,Scheduled
 31,F,Suécia,Tunísia,2026-06-11,15:00,Stadium F1,Group Stage,5.0,1.0,Completed
 32,F,Japão,Holanda,2026-06-12,15:00,Stadium F2,Group Stage,2.0,2.0,Completed
 33,F,Suécia,Japão,2026-06-13,15:00,Stadium F3,Group Stage,,,Scheduled
 34,F,Holanda,Tunísia,2026-06-14,15:00,Stadium F4,Group Stage,,,Scheduled
-35,F,Tunísia,Japão,2026-06-15,15:00,Stadium F5,Group Stage,,,Scheduled
-36,F,Holanda,Suécia,2026-06-16,15:00,Stadium F6,Group Stage,,,Scheduled
-37,G,Nova Zelândia,Egito,2026-06-11,15:00,Stadium G1,Group Stage,,,Scheduled
-38,G,RI do Irã,Bélgica,2026-06-12,15:00,Stadium G2,Group Stage,,,Scheduled
+35,F,Tunísia,Japão,2026-06-15,15:00,Stadium F5,Group Stage,0.0,4.0,Completed
+36,F,Holanda,Suécia,2026-06-16,15:00,Stadium F6,Group Stage,5.0,1.0,Completed
+37,G,Nova Zelândia,Egito,2026-06-11,15:00,Stadium G1,Group Stage,1.0,3.0,Completed
+38,G,RI do Irã,Bélgica,2026-06-12,15:00,Stadium G2,Group Stage,0.0,0.0,Completed
 39,G,Nova Zelândia,RI do Irã,2026-06-13,15:00,Stadium G3,Group Stage,2.0,2.0,Completed
 40,G,Bélgica,Egito,2026-06-14,15:00,Stadium G4,Group Stage,1.0,1.0,Completed
 41,G,Egito,RI do Irã,2026-06-15,15:00,Stadium G5,Group Stage,,,Scheduled
 42,G,Bélgica,Nova Zelândia,2026-06-16,15:00,Stadium G6,Group Stage,,,Scheduled
-43,H,Uruguai,Cabo Verde,2026-06-11,15:00,Stadium H1,Group Stage,,,Scheduled
-44,H,Arábia Saudita,Espanha,2026-06-12,15:00,Stadium H2,Group Stage,,,Scheduled
+43,H,Uruguai,Cabo Verde,2026-06-11,15:00,Stadium H1,Group Stage,2.0,2.0,Completed
+44,H,Arábia Saudita,Espanha,2026-06-12,15:00,Stadium H2,Group Stage,0.0,4.0,Completed
 45,H,Uruguai,Arábia Saudita,2026-06-13,15:00,Stadium H3,Group Stage,1.0,1.0,Completed
 46,H,Espanha,Cabo Verde,2026-06-14,15:00,Stadium H4,Group Stage,0.0,0.0,Completed
 47,H,Cabo Verde,Arábia Saudita,2026-06-15,15:00,Stadium H5,Group Stage,,,Scheduled
@@ -51,12 +51,12 @@ match_id,group,home_team,away_team,date,time,venue,stage,home_score,away_score,s
 50,I,França,Senegal,2026-06-12,15:00,Stadium I2,Group Stage,3.0,1.0,Completed
 51,I,Noruega,França,2026-06-13,15:00,Stadium I3,Group Stage,,,Scheduled
 52,I,Senegal,Iraque,2026-06-14,15:00,Stadium I4,Group Stage,,,Scheduled
-53,I,Iraque,França,2026-06-15,15:00,Stadium I5,Group Stage,,,Scheduled
-54,I,Senegal,Noruega,2026-06-16,15:00,Stadium I6,Group Stage,,,Scheduled
+53,I,Iraque,França,2026-06-15,15:00,Stadium I5,Group Stage,0.0,3.0,Completed
+54,I,Senegal,Noruega,2026-06-16,15:00,Stadium I6,Group Stage,2.0,3.0,Completed
 55,J,Argentina,Argélia,2026-06-11,15:00,Stadium J1,Group Stage,3.0,0.0,Completed
 56,J,Áustria,Jordânia,2026-06-12,15:00,Stadium J2,Group Stage,3.0,1.0,Completed
-57,J,Argentina,Áustria,2026-06-13,15:00,Stadium J3,Group Stage,,,Scheduled
-58,J,Jordânia,Argélia,2026-06-14,15:00,Stadium J4,Group Stage,,,Scheduled
+57,J,Argentina,Áustria,2026-06-13,15:00,Stadium J3,Group Stage,2.0,0.0,Completed
+58,J,Jordânia,Argélia,2026-06-14,15:00,Stadium J4,Group Stage,1.0,2.0,Completed
 59,J,Argélia,Áustria,2026-06-15,15:00,Stadium J5,Group Stage,,,Scheduled
 60,J,Jordânia,Argentina,2026-06-16,15:00,Stadium J6,Group Stage,,,Scheduled
 61,K,Colômbia,Uzbequistão,2026-06-11,15:00,Stadium K1,Group Stage,3.0,1.0,Completed

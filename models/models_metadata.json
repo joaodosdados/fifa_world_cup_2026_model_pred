@@ -74,62 +74,62 @@
     },
     "description": "Logistic Regression treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/logistic_regression.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
     "active": false
   },
   "random_forest": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5624323069781835,
-      "cv_mean": 0.5363974001857009,
-      "cv_std": 0.0056961347801148905,
+      "accuracy": 0.5492805198824076,
+      "cv_mean": 0.5302228412256268,
+      "cv_std": 0.005101288515664681,
       "confusion_matrix": [
         [
-          972,
-          255,
-          663
+          1000,
+          459,
+          431
         ],
         [
-          403,
-          219,
-          864
+          426,
+          416,
+          644
         ],
         [
-          369,
-          274,
-          2444
+          385,
+          568,
+          2134
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5573394495412844,
-          "recall": 0.5142857142857142,
-          "f1-score": 0.53494771601541,
+          "precision": 0.5521811154058531,
+          "recall": 0.5291005291005291,
+          "f1-score": 0.5403944879762227,
           "support": 1890.0
         },
         "draw": {
-          "precision": 0.2927807486631016,
-          "recall": 0.14737550471063257,
-          "f1-score": 0.19606087735004477,
+          "precision": 0.2882882882882883,
+          "recall": 0.27994616419919244,
+          "f1-score": 0.28405599180607716,
           "support": 1486.0
         },
         "home_win": {
-          "precision": 0.6154621002266432,
-          "recall": 0.7917071590540978,
-          "f1-score": 0.6925474638707849,
+          "precision": 0.6650046743533811,
+          "recall": 0.6912860382248137,
+          "f1-score": 0.6778907242693774,
           "support": 3087.0
         },
-        "accuracy": 0.5624323069781835,
+        "accuracy": 0.5492805198824076,
         "macro avg": {
-          "precision": 0.48852743281034305,
-          "recall": 0.4844561260168148,
-          "f1-score": 0.4745186857454133,
+          "precision": 0.5018246926825075,
+          "recall": 0.5001109105081785,
+          "f1-score": 0.5007804013505591,
           "support": 6463.0
         },
         "weighted avg": {
-          "precision": 0.5242728230769061,
-          "recall": 0.5624323069781835,
-          "f1-score": 0.532305688995885,
+          "precision": 0.5453950385644973,
+          "recall": 0.5492805198824076,
+          "f1-score": 0.547130040525833,
           "support": 6463.0
         }
       },
@@ -152,7 +152,7 @@
     },
     "description": "Random Forest treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/random_forest.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
     "active": false
   },
   "gradient_boosting": {
@@ -230,8 +230,8 @@
     },
     "description": "Gradient Boosting treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/gradient_boosting.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
-    "active": true
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "active": false
   },
   "svm": {
     "type": "sklearn",
@@ -308,7 +308,7 @@
     },
     "description": "SVM treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/svm.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
     "active": false
   },
   "k-nearest_neighbors": {
@@ -386,7 +386,7 @@
     },
     "description": "K-Nearest Neighbors treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/k-nearest_neighbors.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
     "active": false
   },
   "naive_bayes": {
@@ -464,62 +464,62 @@
     },
     "description": "Naive Bayes treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/naive_bayes.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
     "active": false
   },
   "ensemble_top3": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5820826241683429,
-      "cv_mean": 0.5596564531104921,
-      "cv_std": 0.006207804884102811,
+      "accuracy": 0.583475166331425,
+      "cv_mean": 0.5596100278551532,
+      "cv_std": 0.004858930300670725,
       "confusion_matrix": [
         [
-          980,
-          16,
-          894
+          990,
+          25,
+          875
         ],
         [
-          364,
-          11,
-          1111
+          374,
+          19,
+          1093
         ],
         [
-          306,
-          10,
-          2771
+          310,
+          15,
+          2762
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.593939393939394,
-          "recall": 0.5185185185185185,
-          "f1-score": 0.5536723163841808,
+          "precision": 0.5913978494623656,
+          "recall": 0.5238095238095238,
+          "f1-score": 0.5555555555555556,
           "support": 1890.0
         },
         "draw": {
-          "precision": 0.2972972972972973,
-          "recall": 0.007402422611036339,
-          "f1-score": 0.014445173998686802,
+          "precision": 0.3220338983050847,
+          "recall": 0.01278600269179004,
+          "f1-score": 0.02459546925566343,
           "support": 1486.0
         },
         "home_win": {
-          "precision": 0.5801926298157454,
-          "recall": 0.8976352445740201,
-          "f1-score": 0.7048200432404934,
+          "precision": 0.5839323467230444,
+          "recall": 0.8947197926789764,
+          "f1-score": 0.7066649609824741,
           "support": 3087.0
         },
-        "accuracy": 0.5820826241683429,
+        "accuracy": 0.583475166331425,
         "macro avg": {
-          "precision": 0.4904764403508122,
-          "recall": 0.47451872856785826,
-          "f1-score": 0.424312511207787,
+          "precision": 0.4991213648301649,
+          "recall": 0.4771051063934301,
+          "f1-score": 0.42893866193123104,
           "support": 6463.0
         },
         "weighted avg": {
-          "precision": 0.5191681705973147,
-          "recall": 0.5820826241683429,
-          "f1-score": 0.5018854525779907,
+          "precision": 0.5258987254679351,
+          "recall": 0.583475166331425,
+          "f1-score": 0.505651183949685,
           "support": 6463.0
         }
       },
@@ -547,7 +547,7 @@
     },
     "description": "Ensemble Top 3 treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/ensemble_top3.pkl",
-    "saved_at": "2026-06-19T22:39:12.421010+00:00",
-    "active": false
+    "saved_at": "2026-06-19T23:54:07.680735+00:00",
+    "active": true
   }
 }

@@ -74,8 +74,9 @@ def build_estimators(random_state: int) -> Dict[str, Any]:
             LogisticRegression(max_iter=2000, random_state=random_state),
         ),
         "random_forest": RandomForestClassifier(
-            n_estimators=400,
-            min_samples_leaf=2,
+            n_estimators=200,
+            max_depth=14,
+            min_samples_leaf=3,
             class_weight="balanced_subsample",
             random_state=random_state,
             n_jobs=-1,
@@ -111,11 +112,11 @@ PARAM_DISTRIBUTIONS: Dict[str, Dict[str, Any]] = {
         "logisticregression__solver": ["lbfgs", "newton-cg"],
     },
     "random_forest": {
-        "n_estimators": randint(150, 700),
-        "max_depth": [None, 4, 6, 8, 12, 16],
-        "min_samples_leaf": randint(1, 6),
+        "n_estimators": randint(100, 300),
+        "max_depth": [8, 10, 12, 14, 16, 20],
+        "min_samples_leaf": randint(2, 8),
         "min_samples_split": randint(2, 10),
-        "max_features": ["sqrt", "log2", None],
+        "max_features": ["sqrt", "log2"],
     },
     "gradient_boosting": {
         "n_estimators": randint(80, 400),
@@ -181,7 +182,13 @@ def temporal_split(
     split_index = int(len(X) * (1 - test_size))
     if split_index <= 0 or split_index >= len(X):
         raise ValueError("test_size must leave observations in train and test sets")
-    return X[:split_index], X[split_index:], y[:split_index], y[split_index:], split_index
+    return (
+        X[:split_index],
+        X[split_index:],
+        y[:split_index],
+        y[split_index:],
+        split_index,
+    )
 
 
 def evaluate_estimator(
@@ -262,9 +269,7 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
     else:
         matches = loader.load_matches(processed=False)
     X, y, context = build_temporal_training_data(matches)
-    X_train, X_test, y_train, y_test, split_index = temporal_split(
-        X, y, args.test_size
-    )
+    X_train, X_test, y_train, y_test, split_index = temporal_split(X, y, args.test_size)
 
     print(
         f"Dados válidos: {len(matches)} | treino: {len(X_train)} | "
