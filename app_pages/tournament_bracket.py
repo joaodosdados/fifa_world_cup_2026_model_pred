@@ -72,7 +72,7 @@ def show_group_stage_expanded(ensemble, schedule, predictions, show_prob, show_s
 def display_group_row(ensemble, matches, predictions, group, show_prob, show_scores):
     """Display ONE GROUP as a complete ROW with all teams and matches"""
     
-    group_data = matches[matches['group'] == group].sort_values('date')
+    group_data = matches[matches['group'] == group].sort_values(['date', 'time'])
     
     # Group header only
     st.markdown(f"### Grupo {group}")

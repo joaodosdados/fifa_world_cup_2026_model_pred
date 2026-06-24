@@ -5,7 +5,13 @@ Detailed group stage analysis
 import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
+from src.components.match_text import format_fixture_datetime
 from src.models.schedule_predictions import prediction_for_match
+from src.components.prediction_text import (
+    format_expected_goals,
+    score_explanation,
+    score_label,
+)
 
 # Access global state
 ensemble = st.session_state.get("predictor")
@@ -24,12 +30,17 @@ def show_group_stage_details(ensemble, schedule, predictions, show_prob, show_sc
     
     selected_group = st.selectbox("Select Group", groups)
     
-    group_data = group_matches[group_matches['group'] == selected_group].sort_values('date')
+    group_data = group_matches[group_matches['group'] == selected_group].sort_values(
+        ['date', 'time']
+    )
     
     st.markdown(f"### Group {selected_group}")
     
     for idx, match in group_data.iterrows():
-        with st.expander(f"{match['home_team']} vs {match['away_team']} - {match['date']}"):
+        with st.expander(
+            f"{match['home_team']} vs {match['away_team']} - "
+            f"{format_fixture_datetime(match)}"
+        ):
             display_match_detailed(ensemble, match, predictions)
 
 def display_match_detailed(ensemble, match, predictions=None):
@@ -53,16 +64,16 @@ def display_match_detailed(ensemble, match, predictions=None):
 
         score_col, goals_col = st.columns(2)
         score_col.metric(
-            "Placar previsto",
+            score_label(prediction),
             f"{predicted_home} - {predicted_away}",
         )
         goals_col.metric(
-            "Gols esperados",
-            (
-                f"{prediction['expected_goals_home']:.1f} - "
-                f"{prediction['expected_goals_away']:.1f}"
-            ),
+            "Gols esperados (xG)",
+            format_expected_goals(prediction).replace("–", " - "),
         )
+        explanation = score_explanation(prediction)
+        if explanation:
+            st.caption(explanation)
 
         # Win probabilities
         col1, col2, col3 = st.columns(3)

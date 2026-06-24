@@ -9,6 +9,11 @@ from scipy.stats import poisson
 from typing import Dict, Tuple
 import logging
 
+from src.models.score_selection import (
+    most_likely_poisson_score,
+    outcome_key_from_probabilities,
+)
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -162,8 +167,22 @@ class PoissonPredictor:
             draw /= probability_total
             away_win /= probability_total
         
-        # Calculate most likely score
-        most_likely_score = self._get_most_likely_score(prob_a, prob_b, max_goals)
+        modal_score = most_likely_poisson_score(
+            expected_a,
+            expected_b,
+            max_goals=max_goals,
+        )
+        predicted_outcome = outcome_key_from_probabilities(
+            home_win,
+            draw,
+            away_win,
+        )
+        most_likely_score = most_likely_poisson_score(
+            expected_a,
+            expected_b,
+            predicted_outcome=predicted_outcome,
+            max_goals=max_goals,
+        )
         
         return {
             'home_win': home_win,
@@ -171,7 +190,9 @@ class PoissonPredictor:
             'away_win': away_win,
             'expected_goals_home': expected_a,
             'expected_goals_away': expected_b,
-            'most_likely_score': most_likely_score
+            'most_likely_score': most_likely_score,
+            'modal_score': modal_score,
+            'score_adjusted_to_outcome': most_likely_score != modal_score,
         }
     
     def _get_most_likely_score(self, prob_a: list, prob_b: list, 

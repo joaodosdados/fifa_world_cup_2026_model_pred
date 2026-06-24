@@ -56,8 +56,27 @@ atualizar as fontes externas e regenerar os modelos.
 - `app_pages/`: chaveamento, grupos, análise dinâmica e informações.
 - `src/data/`: carga sanitizada dos dados, RPA Selenium e reconciliação do CSV.
 - `src/models/`: catálogo, adaptadores e modelos estatísticos.
+- `src/simulation/`: simulação Monte Carlo do torneio completo.
 - `src/components/`: componentes visuais reutilizáveis.
 - `tests/`: testes automatizados do parser, dados e modelos.
+
+## Simulação Monte Carlo
+
+A página **Tournament Simulation** transforma as previsões jogo a jogo em uma
+simulação do torneio completo. Ela roda até 10.000 Copas simuladas usando:
+
+- resultados reais já finalizados no CSV atualizado pela FIFA;
+- probabilidades do modelo ativo para jogos restantes;
+- 12 grupos de 4 seleções;
+- classificação dos dois primeiros de cada grupo;
+- classificação dos 8 melhores terceiros;
+- Rodada de 32, Oitavas, Quartas, Semifinais e Final.
+
+O desempate da fase de grupos usa os critérios disponíveis no dataset:
+pontos, confronto direto entre empatados, saldo de gols, gols marcados e sorteio
+quando ainda há empate. Fair play e ranking FIFA são critérios oficiais
+posteriores, mas ainda não entram porque o projeto não possui cartões nem
+snapshots versionados do ranking FIFA por seleção.
 
 ## Modelos
 
@@ -104,7 +123,8 @@ O pipeline:
 6. treina um regressor de gols compatível com cada família de modelo;
 7. cria um ensemble de votação com os três melhores;
 8. calcula holdout, validação temporal, matriz de confusão, relatório por
-   classe, MAE e RMSE de gols;
+   classe, MAE/RMSE de gols, Log Loss, Brier Score e calibração por faixa de
+   confiança;
 9. retreina os classificadores e regressores com todo o histórico e publica os
    bundles em `models/`
    de forma atômica.

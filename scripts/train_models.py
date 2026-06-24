@@ -31,6 +31,7 @@ from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
+    log_loss,
     mean_absolute_error,
     mean_squared_error,
 )
@@ -64,6 +65,8 @@ MODEL_LABELS = {
     "ensemble_top3": "Ensemble Top 3",
 }
 
+CLASS_LABELS = [0, 1, 2]
+
 
 @dataclass
 class Evaluation:
@@ -75,6 +78,10 @@ class Evaluation:
     cv_std: float
     goals_mae: float
     goals_rmse: float
+    log_loss: float
+    brier_score: float
+    expected_calibration_error: float
+    calibration_bins: list[Dict[str, Any]]
     confusion_matrix: list[list[int]]
     classification_report: Dict[str, Any]
 
@@ -239,6 +246,109 @@ def temporal_split(
     )
 
 
+def softmax(values: np.ndarray) -> np.ndarray:
+    values = np.asarray(values, dtype=float)
+    if values.ndim == 1:
+        values = values.reshape(1, -1)
+    values = values - np.max(values, axis=1, keepdims=True)
+    exponentials = np.exp(values)
+    return exponentials / exponentials.sum(axis=1, keepdims=True)
+
+
+def probability_matrix(estimator: Any, X: np.ndarray) -> np.ndarray:
+    """Return probabilities ordered as away_win, draw, home_win."""
+    if hasattr(estimator, "predict_proba"):
+        try:
+            raw = np.asarray(estimator.predict_proba(X), dtype=float)
+            classes = list(getattr(estimator, "classes_", CLASS_LABELS))
+            probabilities = np.zeros((len(X), len(CLASS_LABELS)), dtype=float)
+            for index, label in enumerate(classes):
+                if int(label) in CLASS_LABELS:
+                    probabilities[:, CLASS_LABELS.index(int(label))] = raw[:, index]
+            row_sums = probabilities.sum(axis=1, keepdims=True)
+            return np.divide(
+                probabilities,
+                row_sums,
+                out=np.full_like(probabilities, 1 / len(CLASS_LABELS)),
+                where=row_sums > 0,
+            )
+        except (AttributeError, NotImplementedError):
+            pass
+
+    if hasattr(estimator, "decision_function"):
+        try:
+            decision = np.asarray(estimator.decision_function(X), dtype=float)
+            if decision.ndim == 1:
+                decision = np.column_stack([-decision, np.zeros_like(decision), decision])
+            return softmax(decision)
+        except (AttributeError, NotImplementedError):
+            pass
+
+    if hasattr(estimator, "estimators_"):
+        votes = np.asarray([component.predict(X) for component in estimator.estimators_])
+        probabilities = np.zeros((len(X), len(CLASS_LABELS)), dtype=float)
+        for label in CLASS_LABELS:
+            probabilities[:, CLASS_LABELS.index(label)] = (votes == label).mean(axis=0)
+        return probabilities
+
+    predictions = np.asarray(estimator.predict(X), dtype=int)
+    probabilities = np.zeros((len(X), len(CLASS_LABELS)), dtype=float)
+    for row, label in enumerate(predictions):
+        probabilities[row, CLASS_LABELS.index(int(label))] = 1.0
+    return probabilities
+
+
+def multiclass_brier_score(y_true: np.ndarray, probabilities: np.ndarray) -> float:
+    """Mean squared probability error across all classes."""
+    one_hot = np.zeros_like(probabilities, dtype=float)
+    for row, label in enumerate(y_true):
+        one_hot[row, CLASS_LABELS.index(int(label))] = 1.0
+    return float(np.mean(np.sum((probabilities - one_hot) ** 2, axis=1)))
+
+
+def calibration_summary(
+    y_true: np.ndarray,
+    probabilities: np.ndarray,
+    n_bins: int = 10,
+) -> tuple[float, list[Dict[str, Any]]]:
+    """Calculate expected calibration error and reliability bins."""
+    predicted_indices = np.argmax(probabilities, axis=1)
+    predicted_labels = np.asarray([CLASS_LABELS[index] for index in predicted_indices])
+    confidence = np.max(probabilities, axis=1)
+    correct = predicted_labels == y_true
+
+    bins = []
+    ece = 0.0
+    for bin_index in range(n_bins):
+        lower = bin_index / n_bins
+        upper = (bin_index + 1) / n_bins
+        if bin_index == n_bins - 1:
+            mask = (confidence >= lower) & (confidence <= upper)
+        else:
+            mask = (confidence >= lower) & (confidence < upper)
+        count = int(mask.sum())
+        if count == 0:
+            continue
+
+        bin_confidence = float(confidence[mask].mean())
+        bin_accuracy = float(correct[mask].mean())
+        gap = abs(bin_accuracy - bin_confidence)
+        ece += (count / len(y_true)) * gap
+        bins.append(
+            {
+                "bin": f"{lower:.1f}–{upper:.1f}",
+                "lower": lower,
+                "upper": upper,
+                "samples": count,
+                "confidence": bin_confidence,
+                "accuracy": bin_accuracy,
+                "gap": float(gap),
+            }
+        )
+
+    return float(ece), bins
+
+
 def evaluate_estimator(
     model_id: str,
     estimator: Any,
@@ -255,6 +365,14 @@ def evaluate_estimator(
     fitted = clone(estimator).fit(X_train, y_train)
     predictions = fitted.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
+    probabilities = probability_matrix(fitted, X_test)
+    holdout_log_loss = log_loss(
+        y_test,
+        probabilities,
+        labels=CLASS_LABELS,
+    )
+    holdout_brier = multiclass_brier_score(y_test, probabilities)
+    ece, calibration_bins = calibration_summary(y_test, probabilities)
 
     fitted_goals = clone(goals_estimator).fit(X_train, y_goals_train)
     goal_predictions = np.clip(fitted_goals.predict(X_test), 0, None)
@@ -286,6 +404,10 @@ def evaluate_estimator(
         cv_std=float(scores.std()),
         goals_mae=float(goals_mae),
         goals_rmse=float(goals_rmse),
+        log_loss=float(holdout_log_loss),
+        brier_score=float(holdout_brier),
+        expected_calibration_error=float(ece),
+        calibration_bins=calibration_bins,
         confusion_matrix=confusion_matrix(
             y_test, predictions, labels=[0, 1, 2]
         ).tolist(),
@@ -317,7 +439,7 @@ def create_top3_ensemble(
             (model_id.replace("-", "_"), clone(evaluations[model_id].estimator))
             for model_id in top_ids
         ],
-        voting="hard",
+        voting="soft",
     )
     return ensemble, top_ids
 
@@ -389,7 +511,9 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
         print(
             f"  holdout={evaluation.accuracy:.1%} | "
             f"cv={evaluation.cv_mean:.1%} ± {evaluation.cv_std:.1%} | "
-            f"gols MAE={evaluation.goals_mae:.2f}"
+            f"gols MAE={evaluation.goals_mae:.2f} | "
+            f"logloss={evaluation.log_loss:.3f} | "
+            f"ECE={evaluation.expected_calibration_error:.3f}"
         )
 
     if not args.no_ensemble:
@@ -420,7 +544,9 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
             f"  holdout={ensemble_evaluation.accuracy:.1%} | "
             f"cv={ensemble_evaluation.cv_mean:.1%} ± "
             f"{ensemble_evaluation.cv_std:.1%} | "
-            f"gols MAE={ensemble_evaluation.goals_mae:.2f}"
+            f"gols MAE={ensemble_evaluation.goals_mae:.2f} | "
+            f"logloss={ensemble_evaluation.log_loss:.3f} | "
+            f"ECE={ensemble_evaluation.expected_calibration_error:.3f}"
         )
 
     publish_models(
@@ -452,6 +578,9 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
                 "cv_std": evaluation.cv_std,
                 "goals_mae": evaluation.goals_mae,
                 "goals_rmse": evaluation.goals_rmse,
+                "log_loss": evaluation.log_loss,
+                "brier_score": evaluation.brier_score,
+                "expected_calibration_error": evaluation.expected_calibration_error,
             }
             for model_id, evaluation in evaluations.items()
         ]
@@ -467,6 +596,10 @@ def train_pipeline(args: argparse.Namespace) -> pd.DataFrame:
                 "cv_mean": "{:.1%}".format,
                 "cv_std": "{:.1%}".format,
                 "goals_mae": "{:.2f}".format,
+                "goals_rmse": "{:.2f}".format,
+                "log_loss": "{:.3f}".format,
+                "brier_score": "{:.3f}".format,
+                "expected_calibration_error": "{:.3f}".format,
             },
         )
     )
@@ -529,6 +662,10 @@ def publish_models(
                 "cv_std": evaluation.cv_std,
                 "goals_mae": evaluation.goals_mae,
                 "goals_rmse": evaluation.goals_rmse,
+                "log_loss": evaluation.log_loss,
+                "brier_score": evaluation.brier_score,
+                "expected_calibration_error": evaluation.expected_calibration_error,
+                "calibration_bins": evaluation.calibration_bins,
                 "confusion_matrix": evaluation.confusion_matrix,
                 "classification_report": report,
                 "features": FEATURE_NAMES,

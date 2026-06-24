@@ -7,6 +7,74 @@
       "cv_std": 0.015666667882929426,
       "goals_mae": 0.9286910002408792,
       "goals_rmse": 1.2425755795806606,
+      "log_loss": 0.8710296799185602,
+      "brier_score": 0.5120979169591859,
+      "expected_calibration_error": 0.029678101764781202,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 315,
+          "confidence": 0.3739077828375333,
+          "accuracy": 0.38095238095238093,
+          "gap": 0.007044598114847644
+        },
+        {
+          "bin": "0.4–0.5",
+          "lower": 0.4,
+          "upper": 0.5,
+          "samples": 602,
+          "confidence": 0.45016348007273066,
+          "accuracy": 0.4069767441860465,
+          "gap": 0.04318673588668415
+        },
+        {
+          "bin": "0.5–0.6",
+          "lower": 0.5,
+          "upper": 0.6,
+          "samples": 565,
+          "confidence": 0.5490132421408023,
+          "accuracy": 0.48672566371681414,
+          "gap": 0.06228757842398813
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 514,
+          "confidence": 0.6511245498928071,
+          "accuracy": 0.6303501945525292,
+          "gap": 0.02077435534027794
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 485,
+          "confidence": 0.747686445428267,
+          "accuracy": 0.7278350515463917,
+          "gap": 0.01985139388187529
+        },
+        {
+          "bin": "0.8–0.9",
+          "lower": 0.8,
+          "upper": 0.9,
+          "samples": 400,
+          "confidence": 0.8471811098160369,
+          "accuracy": 0.8625,
+          "gap": 0.015318890183963152
+        },
+        {
+          "bin": "0.9–1.0",
+          "lower": 0.9,
+          "upper": 1.0,
+          "samples": 151,
+          "confidence": 0.934705685960959,
+          "accuracy": 0.9337748344370861,
+          "gap": 0.0009308515238729553
+        }
+      ],
       "confusion_matrix": [
         [
           572,
@@ -94,8 +162,8 @@
     },
     "description": "Logistic Regression treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/logistic_regression.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
-    "active": true
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
+    "active": false
   },
   "random_forest": {
     "type": "sklearn",
@@ -103,8 +171,76 @@
       "accuracy": 0.5808047493403694,
       "cv_mean": 0.5604311008468053,
       "cv_std": 0.011321520740465146,
-      "goals_mae": 0.9470234502621406,
+      "goals_mae": 0.9470234502621407,
       "goals_rmse": 1.2514484654317475,
+      "log_loss": 0.895948263468136,
+      "brier_score": 0.5268681262223848,
+      "expected_calibration_error": 0.04022807036856941,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 385,
+          "confidence": 0.3756455737040019,
+          "accuracy": 0.35064935064935066,
+          "gap": 0.024996223054651268
+        },
+        {
+          "bin": "0.4–0.5",
+          "lower": 0.4,
+          "upper": 0.5,
+          "samples": 911,
+          "confidence": 0.44712965279022465,
+          "accuracy": 0.4226125137211855,
+          "gap": 0.02451713906903913
+        },
+        {
+          "bin": "0.5–0.6",
+          "lower": 0.5,
+          "upper": 0.6,
+          "samples": 658,
+          "confidence": 0.5482099202617844,
+          "accuracy": 0.5927051671732523,
+          "gap": 0.04449524691146789
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 456,
+          "confidence": 0.6467979202545368,
+          "accuracy": 0.706140350877193,
+          "gap": 0.059342430622656206
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 346,
+          "confidence": 0.7467153015009023,
+          "accuracy": 0.815028901734104,
+          "gap": 0.06831360023320177
+        },
+        {
+          "bin": "0.8–0.9",
+          "lower": 0.8,
+          "upper": 0.9,
+          "samples": 219,
+          "confidence": 0.8392195531117838,
+          "accuracy": 0.8767123287671232,
+          "gap": 0.03749277565533948
+        },
+        {
+          "bin": "0.9–1.0",
+          "lower": 0.9,
+          "upper": 1.0,
+          "samples": 57,
+          "confidence": 0.9328525366897754,
+          "accuracy": 0.9649122807017544,
+          "gap": 0.032059744011978974
+        }
+      ],
       "confusion_matrix": [
         [
           567,
@@ -192,7 +328,7 @@
     },
     "description": "Random Forest treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/random_forest.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
     "active": false
   },
   "gradient_boosting": {
@@ -203,6 +339,74 @@
       "cv_std": 0.019107135909693512,
       "goals_mae": 0.9378251854200426,
       "goals_rmse": 1.2407755758735288,
+      "log_loss": 0.8885415578652045,
+      "brier_score": 0.5225272957087879,
+      "expected_calibration_error": 0.03476957535610654,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 280,
+          "confidence": 0.37830534343397,
+          "accuracy": 0.39285714285714285,
+          "gap": 0.014551799423172862
+        },
+        {
+          "bin": "0.4–0.5",
+          "lower": 0.4,
+          "upper": 0.5,
+          "samples": 627,
+          "confidence": 0.4485527850951099,
+          "accuracy": 0.4226475279106858,
+          "gap": 0.025905257184424046
+        },
+        {
+          "bin": "0.5–0.6",
+          "lower": 0.5,
+          "upper": 0.6,
+          "samples": 549,
+          "confidence": 0.5488527470486032,
+          "accuracy": 0.48633879781420764,
+          "gap": 0.06251394923439557
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 643,
+          "confidence": 0.6474238248521865,
+          "accuracy": 0.6065318818040435,
+          "gap": 0.04089194304814303
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 468,
+          "confidence": 0.7461150463550347,
+          "accuracy": 0.7371794871794872,
+          "gap": 0.008935559175547447
+        },
+        {
+          "bin": "0.8–0.9",
+          "lower": 0.8,
+          "upper": 0.9,
+          "samples": 426,
+          "confidence": 0.8430701756603922,
+          "accuracy": 0.8826291079812206,
+          "gap": 0.03955893232082841
+        },
+        {
+          "bin": "0.9–1.0",
+          "lower": 0.9,
+          "upper": 1.0,
+          "samples": 39,
+          "confidence": 0.9113685124583466,
+          "accuracy": 1.0,
+          "gap": 0.0886314875416534
+        }
+      ],
       "confusion_matrix": [
         [
           552,
@@ -290,7 +494,7 @@
     },
     "description": "Gradient Boosting treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/gradient_boosting.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
     "active": false
   },
   "svm": {
@@ -301,6 +505,38 @@
       "cv_std": 0.006581965471217435,
       "goals_mae": 0.9286910002408792,
       "goals_rmse": 1.2425755795806606,
+      "log_loss": 1.0623707332204355,
+      "brier_score": 0.6235438130224222,
+      "expected_calibration_error": 0.16152518758418796,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 7,
+          "confidence": 0.35882733173421755,
+          "accuracy": 0.2857142857142857,
+          "gap": 0.07311304601993185
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 849,
+          "confidence": 0.6907685239315198,
+          "accuracy": 0.42638398115429915,
+          "gap": 0.2643845427772206
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 2176,
+          "confidence": 0.7246186124151002,
+          "accuracy": 0.6029411764705882,
+          "gap": 0.12167743594451197
+        }
+      ],
       "confusion_matrix": [
         [
           521,
@@ -388,7 +624,7 @@
     },
     "description": "SVM treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/svm.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
     "active": false
   },
   "k-nearest_neighbors": {
@@ -399,6 +635,74 @@
       "cv_std": 0.011098186131347516,
       "goals_mae": 0.9499779196730737,
       "goals_rmse": 1.2623510158792814,
+      "log_loss": 1.7605148800545865,
+      "brier_score": 0.5619627730529836,
+      "expected_calibration_error": 0.05897546603523689,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 239,
+          "confidence": 0.37251477617216816,
+          "accuracy": 0.3723849372384937,
+          "gap": 0.0001298389336744643
+        },
+        {
+          "bin": "0.4–0.5",
+          "lower": 0.4,
+          "upper": 0.5,
+          "samples": 678,
+          "confidence": 0.45618178722261465,
+          "accuracy": 0.4026548672566372,
+          "gap": 0.05352691996597747
+        },
+        {
+          "bin": "0.5–0.6",
+          "lower": 0.5,
+          "upper": 0.6,
+          "samples": 635,
+          "confidence": 0.5459546238230001,
+          "accuracy": 0.47244094488188976,
+          "gap": 0.07351367894111033
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 490,
+          "confidence": 0.6411116006213456,
+          "accuracy": 0.5979591836734693,
+          "gap": 0.043152416947876304
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 391,
+          "confidence": 0.7351372300094207,
+          "accuracy": 0.6649616368286445,
+          "gap": 0.07017559318077615
+        },
+        {
+          "bin": "0.8–0.9",
+          "lower": 0.8,
+          "upper": 0.9,
+          "samples": 294,
+          "confidence": 0.8283939280742454,
+          "accuracy": 0.7414965986394558,
+          "gap": 0.08689732943478956
+        },
+        {
+          "bin": "0.9–1.0",
+          "lower": 0.9,
+          "upper": 1.0,
+          "samples": 305,
+          "confidence": 0.9497671723186271,
+          "accuracy": 0.8786885245901639,
+          "gap": 0.07107864772846317
+        }
+      ],
       "confusion_matrix": [
         [
           493,
@@ -486,7 +790,7 @@
     },
     "description": "K-Nearest Neighbors treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/k-nearest_neighbors.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
     "active": false
   },
   "naive_bayes": {
@@ -497,6 +801,74 @@
       "cv_std": 0.009708966657579775,
       "goals_mae": 0.9285997295830618,
       "goals_rmse": 1.2424341165391115,
+      "log_loss": 1.2421747084659425,
+      "brier_score": 0.5990819621782185,
+      "expected_calibration_error": 0.18714443201122485,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 19,
+          "confidence": 0.3840813409178012,
+          "accuracy": 0.42105263157894735,
+          "gap": 0.03697129066114613
+        },
+        {
+          "bin": "0.4–0.5",
+          "lower": 0.4,
+          "upper": 0.5,
+          "samples": 291,
+          "confidence": 0.4678143158227845,
+          "accuracy": 0.38144329896907214,
+          "gap": 0.08637101685371235
+        },
+        {
+          "bin": "0.5–0.6",
+          "lower": 0.5,
+          "upper": 0.6,
+          "samples": 597,
+          "confidence": 0.550938839134381,
+          "accuracy": 0.38358458961474035,
+          "gap": 0.16735424951964067
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 463,
+          "confidence": 0.6451462421869996,
+          "accuracy": 0.4406047516198704,
+          "gap": 0.20454149056712917
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 302,
+          "confidence": 0.7485516433955695,
+          "accuracy": 0.5397350993377483,
+          "gap": 0.20881654405782113
+        },
+        {
+          "bin": "0.8–0.9",
+          "lower": 0.8,
+          "upper": 0.9,
+          "samples": 319,
+          "confidence": 0.8515140323710232,
+          "accuracy": 0.6426332288401254,
+          "gap": 0.20888080353089777
+        },
+        {
+          "bin": "0.9–1.0",
+          "lower": 0.9,
+          "upper": 1.0,
+          "samples": 1041,
+          "confidence": 0.9752898440955015,
+          "accuracy": 0.7665706051873199,
+          "gap": 0.20871923890818156
+        }
+      ],
       "confusion_matrix": [
         [
           486,
@@ -584,64 +956,132 @@
     },
     "description": "Naive Bayes treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/naive_bayes.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
     "active": false
   },
   "ensemble_top3": {
     "type": "sklearn",
     "metrics": {
-      "accuracy": 0.5933377308707124,
-      "cv_mean": 0.5797866490707136,
-      "cv_std": 0.016973910936453257,
+      "accuracy": 0.5963060686015831,
+      "cv_mean": 0.5804464973056197,
+      "cv_std": 0.012964893767853657,
       "goals_mae": 0.9378251854200426,
       "goals_rmse": 1.2407755758735288,
+      "log_loss": 0.8756120183654333,
+      "brier_score": 0.5142858975020461,
+      "expected_calibration_error": 0.02647307195341943,
+      "calibration_bins": [
+        {
+          "bin": "0.3–0.4",
+          "lower": 0.3,
+          "upper": 0.4,
+          "samples": 381,
+          "confidence": 0.37370808203367706,
+          "accuracy": 0.3884514435695538,
+          "gap": 0.014743361535876742
+        },
+        {
+          "bin": "0.4–0.5",
+          "lower": 0.4,
+          "upper": 0.5,
+          "samples": 691,
+          "confidence": 0.4500133799494331,
+          "accuracy": 0.4211287988422576,
+          "gap": 0.028884581107175455
+        },
+        {
+          "bin": "0.5–0.6",
+          "lower": 0.5,
+          "upper": 0.6,
+          "samples": 597,
+          "confidence": 0.5525184280409171,
+          "accuracy": 0.5326633165829145,
+          "gap": 0.01985511145800256
+        },
+        {
+          "bin": "0.6–0.7",
+          "lower": 0.6,
+          "upper": 0.7,
+          "samples": 538,
+          "confidence": 0.6488143833842903,
+          "accuracy": 0.671003717472119,
+          "gap": 0.022189334087828638
+        },
+        {
+          "bin": "0.7–0.8",
+          "lower": 0.7,
+          "upper": 0.8,
+          "samples": 429,
+          "confidence": 0.7474334961472856,
+          "accuracy": 0.7855477855477856,
+          "gap": 0.03811428940049999
+        },
+        {
+          "bin": "0.8–0.9",
+          "lower": 0.8,
+          "upper": 0.9,
+          "samples": 332,
+          "confidence": 0.8415352297108802,
+          "accuracy": 0.8795180722891566,
+          "gap": 0.03798284257827633
+        },
+        {
+          "bin": "0.9–1.0",
+          "lower": 0.9,
+          "upper": 1.0,
+          "samples": 64,
+          "confidence": 0.9228563952490803,
+          "accuracy": 0.953125,
+          "gap": 0.030268604750919748
+        }
+      ],
       "confusion_matrix": [
         [
-          580,
-          8,
-          309
+          571,
+          24,
+          302
         ],
         [
-          266,
-          13,
-          430
+          249,
+          38,
+          422
         ],
         [
-          210,
-          10,
-          1206
+          194,
+          33,
+          1199
         ]
       ],
       "classification_report": {
         "away_win": {
-          "precision": 0.5492424242424242,
-          "recall": 0.6465997770345596,
-          "f1-score": 0.593958013312852,
+          "precision": 0.5631163708086785,
+          "recall": 0.6365663322185061,
+          "f1-score": 0.597592883307169,
           "support": 897.0
         },
         "draw": {
-          "precision": 0.41935483870967744,
-          "recall": 0.018335684062059238,
-          "f1-score": 0.03513513513513514,
+          "precision": 0.4,
+          "recall": 0.0535966149506347,
+          "f1-score": 0.0945273631840796,
           "support": 709.0
         },
         "home_win": {
-          "precision": 0.6200514138817481,
-          "recall": 0.8457223001402524,
-          "f1-score": 0.7155146840700088,
+          "precision": 0.6235049401976079,
+          "recall": 0.8408134642356241,
+          "f1-score": 0.7160346372051358,
           "support": 1426.0
         },
-        "accuracy": 0.5933377308707124,
+        "accuracy": 0.5963060686015831,
         "macro avg": {
-          "precision": 0.5295495589446165,
-          "recall": 0.5035525870789571,
-          "f1-score": 0.448202610839332,
+          "precision": 0.5288737703354288,
+          "recall": 0.5103254704682549,
+          "f1-score": 0.46938496123212814,
           "support": 3032.0
         },
         "weighted avg": {
-          "precision": 0.5521722794808669,
-          "recall": 0.5933377308707124,
-          "f1-score": 0.5204535251438891,
+          "precision": 0.5533751416019702,
+          "recall": 0.5963060686015831,
+          "f1-score": 0.5356616456063875,
           "support": 3032.0
         }
       },
@@ -687,7 +1127,7 @@
     },
     "description": "Ensemble Top 3 treinado com validação temporal e features pré-jogo sem vazamento de dados.",
     "path": "models/ensemble_top3.pkl",
-    "saved_at": "2026-06-23T20:59:26.302248+00:00",
-    "active": false
+    "saved_at": "2026-06-23T22:32:40.015061+00:00",
+    "active": true
   }
 }

@@ -20,6 +20,8 @@ class DummyPredictor:
             "expected_goals_home": 1.8,
             "expected_goals_away": 0.9,
             "most_likely_score": (2, 1),
+            "modal_score": (1, 1),
+            "score_adjusted_to_outcome": True,
         }
 
 
@@ -61,6 +63,8 @@ def test_precomputes_one_prediction_per_fixture():
     cached = prediction_for_match(predictions, sample_schedule().iloc[0])
     assert cached["home_win"] == 0.6
     assert cached["most_likely_score"] == (2, 1)
+    assert cached["modal_score"] == (1, 1)
+    assert cached["score_adjusted_to_outcome"] is True
 
 
 def test_schedule_fingerprint_changes_when_result_changes():

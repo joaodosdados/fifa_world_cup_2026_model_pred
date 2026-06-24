@@ -64,57 +64,148 @@ class AutoDataUpdater:
         # Mapping from CSV format to scraper format
         name_mapping = {
             'México': 'Mexico',
+            'Mexico': 'Mexico',
             'África do Sul': 'South Africa',
+            'South Africa': 'South Africa',
             'República da Coreia': 'Korea Republic',
+            'Korea Republic': 'Korea Republic',
             'Tchéquia': 'Czech Republic',
+            'Czech Republic': 'Czech Republic',
             'Suíça': 'Switzerland',
+            'Switzerland': 'Switzerland',
             'Bósnia e Herzegovina': 'Bosnia and Herzegovina',
+            'Bosnia and Herzegovina': 'Bosnia and Herzegovina',
             'Canadá': 'Canada',
+            'Canada': 'Canada',
             'Catar': 'Qatar',
+            'Qatar': 'Qatar',
             'Escócia': 'Scotland',
+            'Scotland': 'Scotland',
             'Haiti': 'Haiti',
             'Marrocos': 'Morocco',
+            'Morocco': 'Morocco',
             'Brasil': 'Brazil',
+            'Brazil': 'Brazil',
             'EUA': 'USA',
+            'USA': 'USA',
+            'Estados Unidos': 'USA',
             'Paraguai': 'Paraguay',
+            'Paraguay': 'Paraguay',
             'Inglaterra': 'England',
+            'England': 'England',
             'França': 'France',
+            'France': 'France',
             'Alemanha': 'Germany',
+            'Germany': 'Germany',
             'Espanha': 'Spain',
+            'Spain': 'Spain',
             'Portugal': 'Portugal',
             'Holanda': 'Netherlands',
+            'Netherlands': 'Netherlands',
             'Itália': 'Italy',
+            'Italy': 'Italy',
             'Bélgica': 'Belgium',
+            'Belgium': 'Belgium',
             'Croácia': 'Croatia',
+            'Croatia': 'Croatia',
             'Uruguai': 'Uruguay',
+            'Uruguay': 'Uruguay',
             'Colômbia': 'Colombia',
+            'Colombia': 'Colombia',
             'Chile': 'Chile',
             'Dinamarca': 'Denmark',
+            'Denmark': 'Denmark',
             'Suécia': 'Sweden',
+            'Sweden': 'Sweden',
             'Polônia': 'Poland',
+            'Poland': 'Poland',
             'Senegal': 'Senegal',
             'Nigéria': 'Nigeria',
+            'Nigeria': 'Nigeria',
             'Gana': 'Ghana',
+            'Ghana': 'Ghana',
             'Camarões': 'Cameroon',
+            'Cameroon': 'Cameroon',
             'Tunísia': 'Tunisia',
+            'Tunisia': 'Tunisia',
             'Egito': 'Egypt',
+            'Egypt': 'Egypt',
             'Argélia': 'Algeria',
+            'Algeria': 'Algeria',
             'Japão': 'Japan',
+            'Japan': 'Japan',
             'Irã': 'Iran',
+            'RI do Irã': 'Iran',
+            'IR Iran': 'Iran',
+            'Iran': 'Iran',
             'Austrália': 'Australia',
+            'Australia': 'Australia',
             'Arábia Saudita': 'Saudi Arabia',
+            'Saudi Arabia': 'Saudi Arabia',
             'Costa Rica': 'Costa Rica',
             'Panamá': 'Panama',
+            'Panama': 'Panama',
             'Jamaica': 'Jamaica',
             'Honduras': 'Honduras',
             'Equador': 'Ecuador',
+            'Ecuador': 'Ecuador',
             'Peru': 'Peru',
             'Venezuela': 'Venezuela',
             'Bolívia': 'Bolivia',
+            'Bolivia': 'Bolivia',
             'Argentina': 'Argentina',
+            'Noruega': 'Norway',
+            'Norway': 'Norway',
+            'Iraque': 'Iraq',
+            'Iraq': 'Iraq',
+            'Cabo Verde': 'Cape Verde',
+            'Cape Verde': 'Cape Verde',
+            'Curaçau': 'Curacao',
+            'Curaçao': 'Curacao',
+            'Curacao': 'Curacao',
+            'Costa do Marfim': 'Ivory Coast',
+            "Côte d'Ivoire": 'Ivory Coast',
+            'Ivory Coast': 'Ivory Coast',
+            'Turquia': 'Turkey',
+            'Türkiye': 'Turkey',
+            'Turkey': 'Turkey',
+            'Nova Zelândia': 'New Zealand',
+            'New Zealand': 'New Zealand',
+            'Áustria': 'Austria',
+            'Austria': 'Austria',
+            'Jordânia': 'Jordan',
+            'Jordan': 'Jordan',
+            'Uzbequistão': 'Uzbekistan',
+            'Uzbekistan': 'Uzbekistan',
+            'RD do Congo': 'DR Congo',
+            'Congo DR': 'DR Congo',
+            'DR Congo': 'DR Congo',
         }
         clean_name = str(name).strip()
         return name_mapping.get(clean_name, clean_name).casefold()
+
+    @staticmethod
+    def _values_differ(current_value: Any, new_value: Any) -> bool:
+        """Return True when a schedule cell needs to be updated."""
+        if pd.isna(current_value) and pd.isna(new_value):
+            return False
+        if pd.isna(current_value) and new_value in (None, ""):
+            return False
+        return str(current_value) != str(new_value)
+
+    def _find_fixture_index(
+        self,
+        schedule_df: pd.DataFrame,
+        fifa_home: str,
+        fifa_away: str,
+    ) -> int | None:
+        """Find a schedule row matching the FIFA fixture, ignoring team order."""
+        for idx, row in schedule_df.iterrows():
+            schedule_home = self.normalize_team_name(row['home_team'])
+            schedule_away = self.normalize_team_name(row['away_team'])
+            if {schedule_home, schedule_away} == {fifa_home, fifa_away}:
+                return idx
+        return None
     
     def update_from_fifa(self) -> Dict[str, Any]:
         """
@@ -146,7 +237,10 @@ class AutoDataUpdater:
             # Fetch live data from FIFA
             logger.info("Fetching live data from FIFA website...")
             try:
-                fifa_matches = self.scraper.fetch_match_results()
+                if hasattr(self.scraper, "fetch_fixtures"):
+                    fifa_matches = self.scraper.fetch_fixtures()
+                else:
+                    fifa_matches = self.scraper.fetch_match_results()
             except Exception as scraper_error:
                 logger.warning(f"⚠️  FIFA scraper failed: {scraper_error}")
                 return {
@@ -161,7 +255,7 @@ class AutoDataUpdater:
                 logger.warning("⚠️  No match data fetched from FIFA website")
                 return {
                     'success': False,
-                    'message': 'A FIFA não retornou partidas finalizadas.',
+                    'message': 'A FIFA não retornou partidas.',
                     'updated_matches': 0,
                     'fetched_matches': 0,
                     'matched_matches': 0,
@@ -173,61 +267,80 @@ class AutoDataUpdater:
             updated_count = 0
             matched_count = 0
             for fifa_match in fifa_matches:
-                if fifa_match.get('status') != 'completed':
+                if (
+                    fifa_match.get('stage')
+                    and fifa_match.get('stage') != 'Group Stage'
+                ):
                     continue
-                
-                # Normalize team names
+
                 fifa_home = self.normalize_team_name(fifa_match.get('team_a', ''))
                 fifa_away = self.normalize_team_name(fifa_match.get('team_b', ''))
-                
-                # Find matching row in schedule
-                for idx, row in schedule_df.iterrows():
-                    schedule_home = self.normalize_team_name(row['home_team'])
-                    schedule_away = self.normalize_team_name(row['away_team'])
-                    
-                    same_order = (
-                        schedule_home == fifa_home and schedule_away == fifa_away
-                    )
-                    reverse_order = (
-                        schedule_home == fifa_away and schedule_away == fifa_home
-                    )
+                idx = self._find_fixture_index(schedule_df, fifa_home, fifa_away)
+                if idx is None:
+                    continue
 
-                    # Group-stage CSVs sometimes list the same fixture with the
-                    # opposite home/away order. Scores must be swapped in that case.
-                    if same_order or reverse_order:
-                        matched_count += 1
-                        if same_order:
-                            new_home_score = float(fifa_match['score_a'])
-                            new_away_score = float(fifa_match['score_b'])
-                        else:
-                            new_home_score = float(fifa_match['score_b'])
-                            new_away_score = float(fifa_match['score_a'])
-                        current_home_score = row.get('home_score')
-                        current_away_score = row.get('away_score')
-                        current_status = str(row.get('status', 'Scheduled'))
+                matched_count += 1
+                current_row = schedule_df.loc[idx]
+                has_fixture_metadata = bool(
+                    fifa_match.get("date")
+                    or fifa_match.get("time")
+                    or fifa_match.get("venue")
+                )
+                new_status = (
+                    "Completed"
+                    if fifa_match.get('status') == 'completed'
+                    else "Scheduled"
+                )
+                if has_fixture_metadata:
+                    new_values = {
+                        "group": fifa_match.get("group") or current_row.get("group"),
+                        "home_team": fifa_match.get("team_a"),
+                        "away_team": fifa_match.get("team_b"),
+                        "date": fifa_match.get("date"),
+                        "time": fifa_match.get("time") or current_row.get("time"),
+                        "venue": fifa_match.get("venue") or current_row.get("venue"),
+                        "stage": fifa_match.get("stage") or current_row.get("stage"),
+                        "status": new_status,
+                    }
+                else:
+                    new_values = {"status": new_status}
 
-                        changed = (
-                            current_status.lower() != 'completed'
-                            or pd.isna(current_home_score)
-                            or pd.isna(current_away_score)
-                            or float(current_home_score) != new_home_score
-                            or float(current_away_score) != new_away_score
+                if new_status == "Completed":
+                    if has_fixture_metadata:
+                        new_values["home_score"] = float(fifa_match["score_a"])
+                        new_values["away_score"] = float(fifa_match["score_b"])
+                    else:
+                        schedule_home = self.normalize_team_name(
+                            current_row["home_team"]
                         )
+                        same_order = schedule_home == fifa_home
+                        new_values["home_score"] = float(
+                            fifa_match["score_a" if same_order else "score_b"]
+                        )
+                        new_values["away_score"] = float(
+                            fifa_match["score_b" if same_order else "score_a"]
+                        )
+                else:
+                    new_values["home_score"] = pd.NA
+                    new_values["away_score"] = pd.NA
 
-                        if changed:
-                            schedule_df.at[idx, 'home_score'] = new_home_score
-                            schedule_df.at[idx, 'away_score'] = new_away_score
-                            schedule_df.at[idx, 'status'] = 'Completed'
-                            updated_count += 1
-                            
-                            logger.info(
-                                "✓ Updated: %s %s - %s %s",
-                                fifa_home,
-                                fifa_match['score_a'],
-                                fifa_match['score_b'],
-                                fifa_away,
-                            )
-                        break
+                changed = False
+                for column, new_value in new_values.items():
+                    if column not in schedule_df.columns:
+                        continue
+                    if self._values_differ(current_row.get(column), new_value):
+                        schedule_df.at[idx, column] = new_value
+                        changed = True
+
+                if changed:
+                    updated_count += 1
+                    logger.info(
+                        "✓ Updated fixture: %s vs %s (%s %s)",
+                        fifa_match.get("team_a"),
+                        fifa_match.get("team_b"),
+                        fifa_match.get("date"),
+                        fifa_match.get("time") or new_status,
+                    )
             
             # Save updated schedule
             if updated_count > 0:
@@ -260,7 +373,7 @@ class AutoDataUpdater:
                 'total_completed': new_completed,
                 'last_update': self.last_update,
                 'message': (
-                    f'{updated_count} resultado(s) atualizado(s). '
+                    f'{updated_count} partida(s) atualizada(s). '
                     f'{matched_count} partida(s) do calendário conferida(s).'
                 ),
             }

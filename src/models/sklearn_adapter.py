@@ -5,12 +5,15 @@ Permite usar modelos sklearn com a mesma interface do EnsemblePredictor
 
 import numpy as np
 import pandas as pd
-from scipy.stats import poisson
 from typing import Dict, Any
 from src.models.features import (
     DEFAULT_TEAM_STATS,
     calculate_team_stats,
     create_match_features,
+)
+from src.models.score_selection import (
+    most_likely_poisson_score,
+    outcome_key_from_probabilities,
 )
 
 
@@ -116,27 +119,6 @@ class SklearnMatchPredictor:
 
         return max(0.05, expected_home), max(0.05, expected_away)
 
-    @staticmethod
-    def _most_likely_score(
-        expected_home: float,
-        expected_away: float,
-        max_goals: int = 8,
-    ) -> tuple[int, int]:
-        """Select the likeliest Poisson score from the goal regressor outputs."""
-        best_score = (0, 0)
-        best_probability = -1.0
-
-        for home_goals in range(max_goals + 1):
-            for away_goals in range(max_goals + 1):
-                probability = poisson.pmf(
-                    home_goals, expected_home
-                ) * poisson.pmf(away_goals, expected_away)
-                if probability > best_probability:
-                    best_probability = probability
-                    best_score = (home_goals, away_goals)
-
-        return best_score
-    
     def predict_match(self, team_a: str, team_b: str, is_home_a: bool = True) -> Dict[str, Any]:
         """
         Prediz resultado de uma partida
@@ -161,9 +143,21 @@ class SklearnMatchPredictor:
         expected_goals_home, expected_goals_away = self._predict_expected_goals(
             team_a, team_b, is_home_a, X
         )
-        most_likely_score = self._most_likely_score(
+        modal_score = most_likely_poisson_score(
             expected_goals_home,
             expected_goals_away,
+            max_goals=8,
+        )
+        predicted_outcome = outcome_key_from_probabilities(
+            home_win,
+            draw,
+            away_win,
+        )
+        display_score = most_likely_poisson_score(
+            expected_goals_home,
+            expected_goals_away,
+            predicted_outcome=predicted_outcome,
+            max_goals=8,
         )
         
         return {
@@ -172,7 +166,9 @@ class SklearnMatchPredictor:
             'away_win': away_win,
             'expected_goals_home': expected_goals_home,
             'expected_goals_away': expected_goals_away,
-            'most_likely_score': most_likely_score,
+            'most_likely_score': display_score,
+            'modal_score': modal_score,
+            'score_adjusted_to_outcome': display_score != modal_score,
             'model_type': 'sklearn',
             'model_name': type(getattr(self.model, "outcome_model", self.model)).__name__,
             'goal_model_name': type(getattr(self.model, "goals_model", None)).__name__

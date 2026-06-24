@@ -10,6 +10,10 @@ import logging
 
 from src.models.elo_predictor import ELOPredictor
 from src.models.poisson_predictor import PoissonPredictor
+from src.models.score_selection import (
+    most_likely_poisson_score,
+    outcome_key_from_probabilities,
+)
 from src.utils.team_names import normalize_team_name
 
 logging.basicConfig(level=logging.INFO)
@@ -106,11 +110,28 @@ class EnsemblePredictor:
                 for outcome, probability in combined.items()
             }
         
+        predicted_outcome = outcome_key_from_probabilities(
+            combined['home_win'],
+            combined['draw'],
+            combined['away_win'],
+        )
+        modal_score = poisson_pred.get(
+            'modal_score',
+            poisson_pred['most_likely_score'],
+        )
+        display_score = most_likely_poisson_score(
+            poisson_pred['expected_goals_home'],
+            poisson_pred['expected_goals_away'],
+            predicted_outcome=predicted_outcome,
+        )
+
         # Add additional information
         combined.update({
             'expected_goals_home': poisson_pred['expected_goals_home'],
             'expected_goals_away': poisson_pred['expected_goals_away'],
-            'most_likely_score': poisson_pred['most_likely_score'],
+            'most_likely_score': display_score,
+            'modal_score': modal_score,
+            'score_adjusted_to_outcome': display_score != modal_score,
             'home_elo': elo_pred['home_rating'],
             'away_elo': elo_pred['away_rating'],
             'elo_prediction': elo_pred,

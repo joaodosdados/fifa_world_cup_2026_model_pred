@@ -99,6 +99,37 @@ def show_metadata(model):
     st.info(model["description"])
 
 
+def show_probability_metrics(model):
+    metrics = model["metrics"]
+    log_loss_value = metric_value(metrics, "log_loss")
+    brier = metric_value(metrics, "brier_score")
+    ece = metric_value(metrics, "expected_calibration_error")
+
+    st.markdown("### Qualidade das probabilidades")
+    columns = st.columns(3)
+    columns[0].metric(
+        "Log Loss",
+        f"{log_loss_value:.3f}" if log_loss_value is not None else "Não informado",
+        help="Penaliza previsões confiantes erradas. Quanto menor, melhor.",
+    )
+    columns[1].metric(
+        "Brier Score",
+        f"{brier:.3f}" if brier is not None else "Não informado",
+        help="Erro quadrático das probabilidades multi-classe. Quanto menor, melhor.",
+    )
+    columns[2].metric(
+        "ECE",
+        f"{ece:.3f}" if ece is not None else "Não informado",
+        help="Expected Calibration Error: distância entre confiança e acurácia observada.",
+    )
+
+    if log_loss_value is None and brier is None and ece is None:
+        st.caption(
+            "Este modelo não possui métricas probabilísticas registradas. "
+            "Reexecute `python scripts/train_models.py` para gerá-las."
+        )
+
+
 def training_matches() -> pd.DataFrame:
     """Return the same training frame used by the runtime models."""
     matches = st.session_state.get("training_matches")
@@ -179,6 +210,38 @@ def show_feature_catalog():
                 }
             )
     st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
+
+
+def show_calibration_bins(model):
+    bins = model.get("metrics", {}).get("calibration_bins", [])
+    st.markdown("### Calibração por faixa de confiança")
+    if not bins:
+        st.info(
+            "Este modelo não possui bins de calibração registrados. "
+            "Modelos estatísticos como ELO + Poisson ainda não publicam essa análise."
+        )
+        return
+
+    frame = pd.DataFrame(bins)
+    display = frame.rename(
+        columns={
+            "bin": "Faixa",
+            "samples": "Amostras",
+            "confidence": "Confiança média",
+            "accuracy": "Acurácia observada",
+            "gap": "Gap",
+        }
+    )[["Faixa", "Amostras", "Confiança média", "Acurácia observada", "Gap"]]
+
+    st.caption(
+        "Um modelo bem calibrado fica perto da diagonal: quando prevê 70% de "
+        "confiança, deveria acertar aproximadamente 70% dos jogos naquela faixa."
+    )
+    chart_frame = display.set_index("Faixa")[
+        ["Confiança média", "Acurácia observada"]
+    ]
+    st.line_chart(chart_frame, height=300)
+    st.dataframe(display, width="stretch", hide_index=True)
 
 
 def show_feature_values(title, values):
@@ -670,13 +733,20 @@ if not active_model:
     st.error("Nenhum modelo ativo.")
 else:
     st.markdown(f"## {active_model['label']}")
-    overview_tab, heuristic_tab, importance_tab, data_tab = st.tabs(
-        ["Visão geral", "Heurística e diagnóstico", "Feature importance", "Dados"]
+    overview_tab, heuristic_tab, importance_tab, calibration_tab, data_tab = st.tabs(
+        [
+            "Visão geral",
+            "Heurística e diagnóstico",
+            "Feature importance",
+            "Calibração",
+            "Dados",
+        ]
     )
 
     with overview_tab:
         show_metadata(active_model)
         show_training_setup(active_model)
+        show_probability_metrics(active_model)
         live_accuracy = st.session_state.get("accuracy_stats")
         if live_accuracy:
             st.markdown("### Desempenho nos resultados de 2026")
@@ -693,6 +763,10 @@ else:
 
     with importance_tab:
         show_model_feature_importance(active_model)
+
+    with calibration_tab:
+        show_probability_metrics(active_model)
+        show_calibration_bins(active_model)
 
     with data_tab:
         show_training_data()

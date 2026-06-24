@@ -164,6 +164,12 @@ page_groups = st.Page(
     icon="📊"
 )
 
+page_simulation = st.Page(
+    "app_pages/tournament_simulation.py",
+    title="Tournament Simulation",
+    icon="🎲"
+)
+
 page_analysis = st.Page(
     "app_pages/model_analysis.py",
     title="Model Analysis",
@@ -178,7 +184,7 @@ page_about = st.Page(
 
 # 7. Organize pages into sections
 pages_dict = {
-    "Tournament": [page_bracket, page_groups],
+    "Tournament": [page_bracket, page_groups, page_simulation],
     "Analysis": [page_analysis],
     "Information": [page_about]
 }

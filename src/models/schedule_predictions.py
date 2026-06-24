@@ -15,6 +15,9 @@ PREDICTION_COLUMNS = [
     "expected_goals_away",
     "most_likely_home_score",
     "most_likely_away_score",
+    "modal_home_score",
+    "modal_away_score",
+    "score_adjusted_to_outcome",
     "predicted_winner",
 ]
 
@@ -80,6 +83,10 @@ def precompute_schedule_predictions(
                 is_home_a=True,
             )
             predicted_home, predicted_away = prediction["most_likely_score"]
+            modal_home, modal_away = prediction.get(
+                "modal_score",
+                prediction["most_likely_score"],
+            )
             rows.append({
                 "match_id": match_id,
                 "home_win": float(prediction["home_win"]),
@@ -89,6 +96,11 @@ def precompute_schedule_predictions(
                 "expected_goals_away": float(prediction["expected_goals_away"]),
                 "most_likely_home_score": int(predicted_home),
                 "most_likely_away_score": int(predicted_away),
+                "modal_home_score": int(modal_home),
+                "modal_away_score": int(modal_away),
+                "score_adjusted_to_outcome": bool(
+                    prediction.get("score_adjusted_to_outcome", False)
+                ),
                 "predicted_winner": winner_from_prediction(
                     prediction,
                     home_team,
@@ -134,6 +146,13 @@ def prediction_for_match(
         "most_likely_score": (
             int(row["most_likely_home_score"]),
             int(row["most_likely_away_score"]),
+        ),
+        "modal_score": (
+            int(row.get("modal_home_score", row["most_likely_home_score"])),
+            int(row.get("modal_away_score", row["most_likely_away_score"])),
+        ),
+        "score_adjusted_to_outcome": bool(
+            row.get("score_adjusted_to_outcome", False)
         ),
         "predicted_winner": str(row["predicted_winner"]),
     }

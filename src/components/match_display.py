@@ -6,6 +6,8 @@ import pandas as pd
 from src.utils.flag_images import get_flag_html
 from src.utils.team_names import get_team_abbreviation, get_team_abbreviation_with_tooltip
 from src.models.schedule_predictions import prediction_for_match
+from src.components.match_text import format_fixture_caption
+from src.components.prediction_text import format_score_summary
 
 def display_match_card_compact(
     ensemble,
@@ -51,7 +53,7 @@ def display_match_card_compact(
         # Create container for match
         with st.container():
             # Match info
-            st.caption(f"{match['date']} • {match['venue']}")
+            st.caption(format_fixture_caption(match))
             
             # Teams and scores - balanced layout
             col1, col2, col3 = st.columns([5, 1, 5])
@@ -122,12 +124,7 @@ def display_match_card_compact(
                     st.markdown(f'<div style="padding: 10px; background-color: #d1ecf1; border-radius: 5px; color: #0c5460;"><b>Prediction:</b> Draw ({winner_prob:.0%})</div>', unsafe_allow_html=True)
 
             if show_scores:
-                st.caption(
-                    f"Placar previsto: {predicted_home}–{predicted_away} · "
-                    f"Gols esperados: "
-                    f"{prediction['expected_goals_home']:.1f}–"
-                    f"{prediction['expected_goals_away']:.1f}"
-                )
+                st.caption(format_score_summary(prediction))
             
             st.divider()
         
