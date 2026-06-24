@@ -1,0 +1,18 @@
+data:
+  schedule_path: data/2026_world_cup_schedule.csv
+  raw_results_path: data/raw/international_results.csv
+  predictions_dir: data/predictions
+
+training:
+  min_year: 2010
+  cutoff_date: "2026-06-10"
+  min_team_matches: 30
+  test_size: 0.20
+
+simulation:
+  default_simulations: 10000
+  default_seed: 42
+
+app:
+  default_page: Tournament Bracket
+  auto_update_fifa_on_session_start: true

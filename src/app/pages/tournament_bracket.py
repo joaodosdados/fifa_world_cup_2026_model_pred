@@ -5,7 +5,7 @@ Complete tournament visualization with all stages
 import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
-from src.components.match_display import display_match_card_compact
+from src.app.components.match_display import display_match_card_compact
 
 # Access global state
 ensemble = st.session_state.get("predictor")

@@ -20,6 +20,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python scripts/fetch_external_data.py
 python scripts/train_models.py
+python scripts/evaluate_models.py
+python scripts/generate_predictions.py
 streamlit run main.py
 ```
 
@@ -30,7 +32,11 @@ Ordem recomendada:
 2. `python scripts/train_models.py` treina e publica os artefatos em `models/`
    usando o recorte anti-leakage padrão: jogos internacionais desde 2010 até
    `2026-06-10`.
-3. `streamlit run main.py` inicia o dashboard.
+3. `python scripts/evaluate_models.py` mede a acurácia live contra jogos
+   finalizados no calendário de 2026.
+4. `python scripts/generate_predictions.py` gera um CSV cacheável de previsões
+   para o calendário atual.
+5. `streamlit run main.py` inicia o dashboard.
 
 ### Execução diária do dashboard
 
@@ -50,14 +56,29 @@ Streamlit; ele roda automaticamente ao abrir o app. Só rode
 `scripts/fetch_external_data.py` e `scripts/train_models.py` quando quiser
 atualizar as fontes externas e regenerar os modelos.
 
+Comandos principais:
+
+```bash
+python scripts/update_data.py
+python scripts/train_models.py
+python scripts/evaluate_models.py
+python scripts/generate_predictions.py
+streamlit run main.py
+```
+
 ## Arquitetura
 
 - `main.py`: composição do aplicativo, estado da sessão e sidebar.
-- `app_pages/`: chaveamento, grupos, análise dinâmica e informações.
+- `config.yaml`: configuração operacional padrão de paths, treino e simulação.
+- `src/app/pages/`: páginas Streamlit do dashboard.
+- `src/app/components/`: componentes visuais reutilizáveis.
 - `src/data/`: carga sanitizada dos dados, RPA Selenium e reconciliação do CSV.
+- `src/features/`: engenharia de features pré-jogo.
 - `src/models/`: catálogo, adaptadores e modelos estatísticos.
+- `src/evaluation/`: métricas e avaliação live dos modelos.
 - `src/simulation/`: simulação Monte Carlo do torneio completo.
-- `src/components/`: componentes visuais reutilizáveis.
+- `src/pipelines/`: pipelines reutilizáveis para scripts e automações.
+- `scripts/`: comandos CLI de atualização, treino, avaliação e predição.
 - `tests/`: testes automatizados do parser, dados e modelos.
 
 ## Simulação Monte Carlo
@@ -167,9 +188,10 @@ pytest -q
 O único scraper mantido é `src/data/fifa_scraper_selenium.py`. Ele:
 
 - renderiza a página dinâmica da FIFA;
-- extrai somente cartões com status finalizado;
+- extrai calendário, horários, estádios, status e resultados;
 - não utiliza resultados fictícios em caso de falha;
 - concilia nomes e mando invertido;
+- ignora minutos de jogo ao vivo como `20'` para não sobrescrever kickoff;
 - salva o CSV de forma atômica.
 
 Consulte `docs/DATA_UPDATE_GUIDE.md` para detalhes operacionais.

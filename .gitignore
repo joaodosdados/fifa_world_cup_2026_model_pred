@@ -59,6 +59,7 @@ data/*.zip
 *.cache
 .cache/
 __pycache__/
+data/predictions/
 
 # Logs
 *.log

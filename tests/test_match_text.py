@@ -1,4 +1,4 @@
-from src.components.match_text import compact_venue_name, format_fixture_caption
+from src.app.components.match_text import compact_venue_name, format_fixture_caption
 
 
 def test_compact_venue_shortens_long_san_francisco_label():

@@ -21,7 +21,7 @@ from src.models.schedule_predictions import (
     precompute_schedule_predictions,
     schedule_fingerprint,
 )
-from src.components.styles import apply_custom_css
+from src.app.components.styles import apply_custom_css
 import pandas as pd
 
 # 1. MUST be first Streamlit command
@@ -152,32 +152,32 @@ def calculate_accuracy(model_id=None):
 
 # 6. Define pages programmatically
 page_bracket = st.Page(
-    "app_pages/tournament_bracket.py",
+    "src/app/pages/tournament_bracket.py",
     title="Tournament Bracket",
     icon="🏆",
     default=True
 )
 
 page_groups = st.Page(
-    "app_pages/group_stage.py",
+    "src/app/pages/group_stage.py",
     title="Group Stage Details",
     icon="📊"
 )
 
 page_simulation = st.Page(
-    "app_pages/tournament_simulation.py",
+    "src/app/pages/tournament_simulation.py",
     title="Tournament Simulation",
     icon="🎲"
 )
 
 page_analysis = st.Page(
-    "app_pages/model_analysis.py",
+    "src/app/pages/model_analysis.py",
     title="Model Analysis",
     icon="📈"
 )
 
 page_about = st.Page(
-    "app_pages/about.py",
+    "src/app/pages/about.py",
     title="About",
     icon="ℹ️"
 )

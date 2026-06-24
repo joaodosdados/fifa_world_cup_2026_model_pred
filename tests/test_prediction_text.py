@@ -1,4 +1,4 @@
-from src.components.prediction_text import (
+from src.app.components.prediction_text import (
     format_score_summary,
     score_explanation,
     score_label,

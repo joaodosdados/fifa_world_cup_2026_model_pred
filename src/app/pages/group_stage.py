@@ -5,9 +5,9 @@ Detailed group stage analysis
 import streamlit as st
 import pandas as pd
 from src.utils.flag_images import get_flag_html
-from src.components.match_text import format_fixture_datetime
+from src.app.components.match_text import format_fixture_datetime
 from src.models.schedule_predictions import prediction_for_match
-from src.components.prediction_text import (
+from src.app.components.prediction_text import (
     format_expected_goals,
     score_explanation,
     score_label,

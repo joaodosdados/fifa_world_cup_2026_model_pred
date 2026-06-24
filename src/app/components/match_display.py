@@ -6,8 +6,8 @@ import pandas as pd
 from src.utils.flag_images import get_flag_html
 from src.utils.team_names import get_team_abbreviation, get_team_abbreviation_with_tooltip
 from src.models.schedule_predictions import prediction_for_match
-from src.components.match_text import format_fixture_caption
-from src.components.prediction_text import format_score_summary
+from src.app.components.match_text import format_fixture_caption
+from src.app.components.prediction_text import format_score_summary
 
 def display_match_card_compact(
     ensemble,

@@ -8,8 +8,8 @@ import streamlit as st
 from sklearn.inspection import permutation_importance
 
 from src.data.loader import DataLoader
-from src.models.features import FEATURE_NAMES as MODEL_FEATURE_NAMES
-from src.models.features import build_temporal_training_data
+from src.features.match_features import FEATURE_NAMES as MODEL_FEATURE_NAMES
+from src.features.match_features import build_temporal_training_data
 
 
 FEATURE_LABELS = {

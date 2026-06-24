@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.models.features import (
+from src.features.match_features import (
     FEATURE_NAMES,
     build_temporal_training_data,
     calculate_team_stats,

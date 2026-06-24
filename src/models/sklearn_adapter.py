@@ -6,7 +6,7 @@ Permite usar modelos sklearn com a mesma interface do EnsemblePredictor
 import numpy as np
 import pandas as pd
 from typing import Dict, Any
-from src.models.features import (
+from src.features.match_features import (
     DEFAULT_TEAM_STATS,
     calculate_team_stats,
     create_match_features,
