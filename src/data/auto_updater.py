@@ -206,6 +206,47 @@ class AutoDataUpdater:
             if {schedule_home, schedule_away} == {fifa_home, fifa_away}:
                 return idx
         return None
+
+    @staticmethod
+    def _next_match_id(schedule_df: pd.DataFrame) -> int:
+        if "match_id" not in schedule_df.columns or schedule_df.empty:
+            return 1
+        ids = pd.to_numeric(schedule_df["match_id"], errors="coerce").dropna()
+        return int(ids.max()) + 1 if not ids.empty else len(schedule_df) + 1
+
+    def _new_fixture_row(
+        self,
+        schedule_df: pd.DataFrame,
+        fifa_match: Dict[str, Any],
+        match_id: int,
+    ) -> Dict[str, Any]:
+        new_status = (
+            "Completed"
+            if fifa_match.get("status") == "completed"
+            else "Scheduled"
+        )
+        row = {
+            "match_id": match_id,
+            "group": fifa_match.get("group") or "",
+            "home_team": fifa_match.get("team_a"),
+            "away_team": fifa_match.get("team_b"),
+            "date": fifa_match.get("date"),
+            "time": fifa_match.get("time") or "",
+            "venue": fifa_match.get("venue") or "",
+            "stage": fifa_match.get("stage") or "",
+            "home_score": pd.NA,
+            "away_score": pd.NA,
+            "status": new_status,
+        }
+
+        if new_status == "Completed":
+            row["home_score"] = float(fifa_match["score_a"])
+            row["away_score"] = float(fifa_match["score_b"])
+
+        return {
+            column: row.get(column, pd.NA)
+            for column in schedule_df.columns
+        }
     
     def update_from_fifa(self) -> Dict[str, Any]:
         """
@@ -266,17 +307,33 @@ class AutoDataUpdater:
             # Update schedule with FIFA data
             updated_count = 0
             matched_count = 0
+            appended_count = 0
+            next_match_id = self._next_match_id(schedule_df)
             for fifa_match in fifa_matches:
-                if (
-                    fifa_match.get('stage')
-                    and fifa_match.get('stage') != 'Group Stage'
-                ):
-                    continue
-
                 fifa_home = self.normalize_team_name(fifa_match.get('team_a', ''))
                 fifa_away = self.normalize_team_name(fifa_match.get('team_b', ''))
                 idx = self._find_fixture_index(schedule_df, fifa_home, fifa_away)
                 if idx is None:
+                    if fifa_match.get("stage") == "Group Stage":
+                        continue
+                    if not fifa_match.get("team_a") or not fifa_match.get("team_b"):
+                        continue
+
+                    schedule_df.loc[len(schedule_df)] = self._new_fixture_row(
+                        schedule_df,
+                        fifa_match,
+                        next_match_id,
+                    )
+                    next_match_id += 1
+                    appended_count += 1
+                    matched_count += 1
+                    logger.info(
+                        "✓ Added fixture: %s vs %s (%s %s)",
+                        fifa_match.get("team_a"),
+                        fifa_match.get("team_b"),
+                        fifa_match.get("date"),
+                        fifa_match.get("time") or fifa_match.get("status"),
+                    )
                     continue
 
                 matched_count += 1
@@ -343,7 +400,8 @@ class AutoDataUpdater:
                     )
             
             # Save updated schedule
-            if updated_count > 0:
+            changed_count = updated_count + appended_count
+            if changed_count > 0:
                 if not self.save_schedule(schedule_df):
                     return {
                         'success': False,
@@ -352,7 +410,12 @@ class AutoDataUpdater:
                         'fetched_matches': len(fifa_matches),
                         'matched_matches': matched_count,
                     }
-                logger.info(f"✓ Successfully updated {updated_count} matches")
+                logger.info(
+                    "✓ Successfully changed %d matches (%d updated, %d added)",
+                    changed_count,
+                    updated_count,
+                    appended_count,
+                )
             else:
                 logger.info("No new updates found")
             
@@ -367,13 +430,15 @@ class AutoDataUpdater:
             
             return {
                 'success': True,
-                'updated_matches': updated_count,
+                'updated_matches': changed_count,
+                'changed_matches': changed_count,
+                'appended_matches': appended_count,
                 'fetched_matches': len(fifa_matches),
                 'matched_matches': matched_count,
                 'total_completed': new_completed,
                 'last_update': self.last_update,
                 'message': (
-                    f'{updated_count} partida(s) atualizada(s). '
+                    f'{changed_count} partida(s) alterada(s). '
                     f'{matched_count} partida(s) do calendário conferida(s).'
                 ),
             }

@@ -3,71 +3,103 @@ match_id,group,home_team,away_team,date,time,venue,stage,home_score,away_score,s
 2,A,República da Coreia,Tchéquia,2026-06-11,15:00,Estádio de Guadalajara (Guadalajara),Group Stage,2.0,1.0,Completed
 3,A,México,República da Coreia,2026-06-18,15:00,Estádio de Guadalajara (Guadalajara),Group Stage,1.0,0.0,Completed
 4,A,Tchéquia,África do Sul,2026-06-18,15:00,Estádio de Atlanta (Atlanta),Group Stage,1.0,1.0,Completed
-5,A,África do Sul,República da Coreia,2026-06-24,22:00,Estádio de Monterrey (Monterrey),Group Stage,,,Scheduled
-6,A,Tchéquia,México,2026-06-24,22:00,Estádio da Cidade do México (Cidade do México),Group Stage,,,Scheduled
+5,A,África do Sul,República da Coreia,2026-06-24,22:00,Estádio de Monterrey (Monterrey),Group Stage,1.0,0.0,Completed
+6,A,Tchéquia,México,2026-06-24,22:00,Estádio da Cidade do México (Cidade do México),Group Stage,0.0,3.0,Completed
 7,B,Suíça,Bósnia e Herzegovina,2026-06-18,15:00,Estádio de Los Angeles (Los Angeles),Group Stage,4.0,1.0,Completed
 8,B,Canadá,Catar,2026-06-18,15:00,BC Place de Vancouver (Vancouver),Group Stage,6.0,0.0,Completed
-9,B,Suíça,Canadá,2026-06-24,16:00,BC Place de Vancouver (Vancouver),Group Stage,,,Scheduled
-10,B,Bósnia e Herzegovina,Catar,2026-06-24,16:00,Estádio de Seattle (Seattle),Group Stage,,,Scheduled
+9,B,Suíça,Canadá,2026-06-24,16:00,BC Place de Vancouver (Vancouver),Group Stage,2.0,1.0,Completed
+10,B,Bósnia e Herzegovina,Catar,2026-06-24,16:00,Estádio de Seattle (Seattle),Group Stage,3.0,1.0,Completed
 11,B,Canadá,Bósnia e Herzegovina,2026-06-12,15:00,Estádio de Toronto (Toronto),Group Stage,1.0,1.0,Completed
 12,B,Catar,Suíça,2026-06-13,15:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Group Stage,1.0,1.0,Completed
 13,C,Haiti,Escócia,2026-06-13,15:00,Estádio de Boston (Boston),Group Stage,0.0,1.0,Completed
 14,C,Brasil,Marrocos,2026-06-13,15:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,1.0,1.0,Completed
 15,C,Escócia,Marrocos,2026-06-19,15:00,Estádio de Boston (Boston),Group Stage,0.0,1.0,Completed
 16,C,Brasil,Haiti,2026-06-19,15:00,Estádio de Filadélfia (Filadélfia),Group Stage,3.0,0.0,Completed
-17,C,Marrocos,Haiti,2026-06-24,19:00,Estádio de Atlanta (Atlanta),Group Stage,,,Scheduled
-18,C,Escócia,Brasil,2026-06-24,19:00,Estádio de Miami (Miami),Group Stage,,,Scheduled
+17,C,Marrocos,Haiti,2026-06-24,19:00,Estádio de Atlanta (Atlanta),Group Stage,4.0,2.0,Completed
+18,C,Escócia,Brasil,2026-06-24,19:00,Estádio de Miami (Miami),Group Stage,0.0,3.0,Completed
 19,D,EUA,Paraguai,2026-06-12,15:00,Estádio de Los Angeles (Los Angeles),Group Stage,4.0,1.0,Completed
 20,D,Austrália,Turquia,2026-06-14,15:00,BC Place de Vancouver (Vancouver),Group Stage,2.0,0.0,Completed
 21,D,EUA,Austrália,2026-06-19,15:00,Estádio de Seattle (Seattle),Group Stage,2.0,0.0,Completed
 22,D,Turquia,Paraguai,2026-06-20,15:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Group Stage,0.0,1.0,Completed
-23,D,Paraguai,Austrália,2026-06-25,23:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Group Stage,,,Scheduled
-24,D,Turquia,EUA,2026-06-25,23:00,Estádio de Los Angeles (Los Angeles),Group Stage,,,Scheduled
+23,D,Paraguai,Austrália,2026-06-25,23:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Group Stage,0.0,0.0,Completed
+24,D,Turquia,EUA,2026-06-25,23:00,Estádio de Los Angeles (Los Angeles),Group Stage,3.0,2.0,Completed
 25,E,Alemanha,Curaçau,2026-06-14,15:00,Estádio de Houston (Houston),Group Stage,7.0,1.0,Completed
 26,E,Costa do Marfim,Equador,2026-06-14,15:00,Estádio de Filadélfia (Filadélfia),Group Stage,1.0,0.0,Completed
 27,E,Alemanha,Costa do Marfim,2026-06-20,15:00,Estádio de Toronto (Toronto),Group Stage,2.0,1.0,Completed
 28,E,Equador,Curaçau,2026-06-20,15:00,Estádio de Kansas City (Kansas City),Group Stage,0.0,0.0,Completed
-29,E,Curaçau,Costa do Marfim,2026-06-25,17:00,Estádio de Filadélfia (Filadélfia),Group Stage,,,Scheduled
-30,E,Equador,Alemanha,2026-06-25,17:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,,,Scheduled
+29,E,Curaçau,Costa do Marfim,2026-06-25,17:00,Estádio de Filadélfia (Filadélfia),Group Stage,0.0,2.0,Completed
+30,E,Equador,Alemanha,2026-06-25,17:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,2.0,1.0,Completed
 31,F,Suécia,Tunísia,2026-06-14,15:00,Estádio de Monterrey (Monterrey),Group Stage,5.0,1.0,Completed
 32,F,Holanda,Japão,2026-06-14,15:00,Estádio de Dallas (Dallas),Group Stage,2.0,2.0,Completed
-33,F,Japão,Suécia,2026-06-25,20:00,Estádio de Dallas (Dallas),Group Stage,,,Scheduled
-34,F,Tunísia,Holanda,2026-06-25,20:00,Estádio de Kansas City (Kansas City),Group Stage,,,Scheduled
+33,F,Japão,Suécia,2026-06-25,20:00,Estádio de Dallas (Dallas),Group Stage,1.0,1.0,Completed
+34,F,Tunísia,Holanda,2026-06-25,20:00,Estádio de Kansas City (Kansas City),Group Stage,1.0,3.0,Completed
 35,F,Tunísia,Japão,2026-06-21,15:00,Estádio de Monterrey (Monterrey),Group Stage,0.0,4.0,Completed
 36,F,Holanda,Suécia,2026-06-20,15:00,Estádio de Houston (Houston),Group Stage,5.0,1.0,Completed
 37,G,Nova Zelândia,Egito,2026-06-21,15:00,BC Place de Vancouver (Vancouver),Group Stage,1.0,3.0,Completed
 38,G,Bélgica,RI do Irã,2026-06-21,15:00,Estádio de Los Angeles (Los Angeles),Group Stage,0.0,0.0,Completed
 39,G,RI do Irã,Nova Zelândia,2026-06-15,15:00,Estádio de Los Angeles (Los Angeles),Group Stage,2.0,2.0,Completed
 40,G,Bélgica,Egito,2026-06-15,15:00,Estádio de Seattle (Seattle),Group Stage,1.0,1.0,Completed
-41,G,Egito,RI do Irã,2026-06-27,00:00,Estádio de Seattle (Seattle),Group Stage,,,Scheduled
-42,G,Nova Zelândia,Bélgica,2026-06-27,00:00,BC Place de Vancouver (Vancouver),Group Stage,,,Scheduled
+41,G,Egito,RI do Irã,2026-06-27,00:00,Estádio de Seattle (Seattle),Group Stage,1.0,1.0,Completed
+42,G,Nova Zelândia,Bélgica,2026-06-27,00:00,BC Place de Vancouver (Vancouver),Group Stage,1.0,5.0,Completed
 43,H,Uruguai,Cabo Verde,2026-06-21,15:00,Estádio de Miami (Miami),Group Stage,2.0,2.0,Completed
 44,H,Espanha,Arábia Saudita,2026-06-21,15:00,Estádio de Atlanta (Atlanta),Group Stage,4.0,0.0,Completed
 45,H,Arábia Saudita,Uruguai,2026-06-15,15:00,Estádio de Miami (Miami),Group Stage,1.0,1.0,Completed
 46,H,Espanha,Cabo Verde,2026-06-15,15:00,Estádio de Atlanta (Atlanta),Group Stage,0.0,0.0,Completed
-47,H,Cabo Verde,Arábia Saudita,2026-06-26,21:00,Estádio de Houston (Houston),Group Stage,,,Scheduled
-48,H,Uruguai,Espanha,2026-06-26,21:00,Estádio de Guadalajara (Guadalajara),Group Stage,,,Scheduled
+47,H,Cabo Verde,Arábia Saudita,2026-06-26,21:00,Estádio de Houston (Houston),Group Stage,0.0,0.0,Completed
+48,H,Uruguai,Espanha,2026-06-26,21:00,Estádio de Guadalajara (Guadalajara),Group Stage,0.0,1.0,Completed
 49,I,Iraque,Noruega,2026-06-16,15:00,Estádio de Boston (Boston),Group Stage,1.0,4.0,Completed
 50,I,França,Senegal,2026-06-16,15:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,3.0,1.0,Completed
-51,I,Noruega,França,2026-06-26,16:00,Estádio de Boston (Boston),Group Stage,,,Scheduled
-52,I,Senegal,Iraque,2026-06-26,16:00,Estádio de Toronto (Toronto),Group Stage,,,Scheduled
+51,I,Noruega,França,2026-06-26,16:00,Estádio de Boston (Boston),Group Stage,1.0,4.0,Completed
+52,I,Senegal,Iraque,2026-06-26,16:00,Estádio de Toronto (Toronto),Group Stage,5.0,0.0,Completed
 53,I,França,Iraque,2026-06-22,15:00,Estádio de Filadélfia (Filadélfia),Group Stage,3.0,0.0,Completed
 54,I,Noruega,Senegal,2026-06-22,15:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,3.0,2.0,Completed
 55,J,Argentina,Argélia,2026-06-16,15:00,Estádio de Kansas City (Kansas City),Group Stage,3.0,0.0,Completed
 56,J,Áustria,Jordânia,2026-06-17,15:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Group Stage,3.0,1.0,Completed
 57,J,Argentina,Áustria,2026-06-22,15:00,Estádio de Dallas (Dallas),Group Stage,2.0,0.0,Completed
 58,J,Jordânia,Argélia,2026-06-23,15:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Group Stage,1.0,2.0,Completed
-59,J,Argélia,Áustria,2026-06-27,23:00,Estádio de Kansas City (Kansas City),Group Stage,,,Scheduled
-60,J,Jordânia,Argentina,2026-06-27,23:00,Estádio de Dallas (Dallas),Group Stage,,,Scheduled
+59,J,Argélia,Áustria,2026-06-27,23:00,Estádio de Kansas City (Kansas City),Group Stage,3.0,3.0,Completed
+60,J,Jordânia,Argentina,2026-06-27,23:00,Estádio de Dallas (Dallas),Group Stage,1.0,3.0,Completed
 61,K,Uzbequistão,Colômbia,2026-06-17,15:00,Estádio da Cidade do México (Cidade do México),Group Stage,1.0,3.0,Completed
 62,K,Portugal,RD do Congo,2026-06-17,15:00,Estádio de Houston (Houston),Group Stage,1.0,1.0,Completed
-63,K,Colômbia,RD do Congo,2026-06-23,23:00,Estádio de Guadalajara (Guadalajara),Group Stage,,,Scheduled
+63,K,Colômbia,RD do Congo,2026-06-23,23:00,Estádio de Guadalajara (Guadalajara),Group Stage,1.0,0.0,Completed
 64,K,Portugal,Uzbequistão,2026-06-23,15:00,Estádio de Houston (Houston),Group Stage,5.0,0.0,Completed
-65,K,RD do Congo,Uzbequistão,2026-06-27,20:30,Estádio de Atlanta (Atlanta),Group Stage,,,Scheduled
-66,K,Colômbia,Portugal,2026-06-27,20:30,Estádio de Miami (Miami),Group Stage,,,Scheduled
+65,K,RD do Congo,Uzbequistão,2026-06-27,20:30,Estádio de Atlanta (Atlanta),Group Stage,3.0,1.0,Completed
+66,K,Colômbia,Portugal,2026-06-27,20:30,Estádio de Miami (Miami),Group Stage,0.0,0.0,Completed
 67,L,Inglaterra,Croácia,2026-06-17,15:00,Estádio de Dallas (Dallas),Group Stage,4.0,2.0,Completed
 68,L,Gana,Panamá,2026-06-17,15:00,Estádio de Toronto (Toronto),Group Stage,1.0,0.0,Completed
 69,L,Inglaterra,Gana,2026-06-23,15:00,Estádio de Boston (Boston),Group Stage,0.0,0.0,Completed
 70,L,Panamá,Croácia,2026-06-23,20:00,Estádio de Toronto (Toronto),Group Stage,0.0,1.0,Completed
-71,L,Croácia,Gana,2026-06-27,18:00,Estádio de Filadélfia (Filadélfia),Group Stage,,,Scheduled
-72,L,Panamá,Inglaterra,2026-06-27,18:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,,,Scheduled
+71,L,Croácia,Gana,2026-06-27,18:00,Estádio de Filadélfia (Filadélfia),Group Stage,2.0,1.0,Completed
+72,L,Panamá,Inglaterra,2026-06-27,18:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Group Stage,0.0,2.0,Completed
+73,,África do Sul,Canadá,2026-06-28,,Estádio de Los Angeles (Los Angeles),Segundas de final · Estádio de Los Angeles (Los Angeles),0.0,1.0,Completed
+74,,Brasil,Japão,2026-06-29,,Estádio de Houston (Houston),Segundas de final · Estádio de Houston (Houston),2.0,1.0,Completed
+75,,Alemanha,Paraguai,2026-06-29,,Estádio de Boston (Boston),Segundas de final · Estádio de Boston (Boston),1.0,1.0,Completed
+76,,Holanda,Marrocos,2026-06-29,,Estádio de Monterrey (Monterrey),Segundas de final · Estádio de Monterrey (Monterrey),1.0,1.0,Completed
+77,,Costa do Marfim,Noruega,2026-06-30,14:00,Estádio de Dallas (Dallas),Segundas de final · Estádio de Dallas (Dallas),,,Scheduled
+78,,França,Suécia,2026-06-30,18:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Segundas de final · Estádio de Nova York/Nova Jersey (Nova Jersey),,,Scheduled
+79,,México,Equador,2026-06-30,22:00,Estádio da Cidade do México (Cidade do México),Segundas de final · Estádio da Cidade do México (Cidade do México),,,Scheduled
+80,,Inglaterra,RD do Congo,2026-07-01,13:00,Estádio de Atlanta (Atlanta),Segundas de final · Estádio de Atlanta (Atlanta),,,Scheduled
+81,,Bélgica,Senegal,2026-07-01,17:00,Estádio de Seattle (Seattle),Segundas de final · Estádio de Seattle (Seattle),,,Scheduled
+82,,EUA,Bósnia e Herzegovina,2026-07-01,21:00,Estádio da Baía de São Francisco (Área da baía de São Francisco),Segundas de final · Estádio da Baía de São Francisco (Área da baía de São Francisco),,,Scheduled
+83,,Espanha,Áustria,2026-07-02,16:00,Estádio de Los Angeles (Los Angeles),Segundas de final · Estádio de Los Angeles (Los Angeles),,,Scheduled
+84,,Portugal,Croácia,2026-07-02,20:00,Estádio de Toronto (Toronto),Segundas de final · Estádio de Toronto (Toronto),,,Scheduled
+85,,Suíça,Argélia,2026-07-03,00:00,BC Place de Vancouver (Vancouver),Segundas de final · BC Place de Vancouver (Vancouver),,,Scheduled
+86,,Austrália,Egito,2026-07-03,15:00,Estádio de Dallas (Dallas),Segundas de final · Estádio de Dallas (Dallas),,,Scheduled
+87,,Argentina,Cabo Verde,2026-07-03,19:00,Estádio de Miami (Miami),Segundas de final · Estádio de Miami (Miami),,,Scheduled
+88,,Colômbia,Gana,2026-07-03,22:30,Estádio de Kansas City (Kansas City),Segundas de final · Estádio de Kansas City (Kansas City),,,Scheduled
+89,,Canadá,Marrocos,2026-07-04,14:00,Estádio de Houston (Houston),Oitavas de final · Estádio de Houston (Houston),,,Scheduled
+90,,Paraguai,W77,2026-07-04,18:00,Estádio de Filadélfia (Filadélfia),Oitavas de final · Estádio de Filadélfia (Filadélfia),,,Scheduled
+91,,Brasil,W78,2026-07-05,17:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Oitavas de final · Estádio de Nova York/Nova Jersey (Nova Jersey),,,Scheduled
+92,,W79,W80,2026-07-05,21:00,Estádio da Cidade do México (Cidade do México),Oitavas de final · Estádio da Cidade do México (Cidade do México),,,Scheduled
+93,,W83,W84,2026-07-06,16:00,Estádio de Dallas (Dallas),Oitavas de final · Estádio de Dallas (Dallas),,,Scheduled
+94,,W81,W82,2026-07-06,21:00,Estádio de Seattle (Seattle),Oitavas de final · Estádio de Seattle (Seattle),,,Scheduled
+95,,W86,W88,2026-07-07,13:00,Estádio de Atlanta (Atlanta),Oitavas de final · Estádio de Atlanta (Atlanta),,,Scheduled
+96,,W85,W87,2026-07-07,17:00,BC Place de Vancouver (Vancouver),Oitavas de final · BC Place de Vancouver (Vancouver),,,Scheduled
+97,,W89,W90,2026-07-09,17:00,Estádio de Boston (Boston),Quartas de final · Estádio de Boston (Boston),,,Scheduled
+98,,W93,W94,2026-07-10,16:00,Estádio de Los Angeles (Los Angeles),Quartas de final · Estádio de Los Angeles (Los Angeles),,,Scheduled
+99,,W91,W92,2026-07-11,18:00,Estádio de Miami (Miami),Quartas de final · Estádio de Miami (Miami),,,Scheduled
+100,,W95,W96,2026-07-11,22:00,Estádio de Kansas City (Kansas City),Quartas de final · Estádio de Kansas City (Kansas City),,,Scheduled
+101,,W97,W98,2026-07-14,16:00,Estádio de Dallas (Dallas),Semifinal · Estádio de Dallas (Dallas),,,Scheduled
+102,,W99,W100,2026-07-15,16:00,Estádio de Atlanta (Atlanta),Semifinal · Estádio de Atlanta (Atlanta),,,Scheduled
+103,,RU101,RU102,2026-07-18,18:00,Estádio de Miami (Miami),Decisão do 3º lugar · Estádio de Miami (Miami),,,Scheduled
+104,,W101,W102,2026-07-19,16:00,Estádio de Nova York/Nova Jersey (Nova Jersey),Final · Estádio de Nova York/Nova Jersey (Nova Jersey),,,Scheduled

@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from src.data.loader import DataLoader
 from src.models.model_catalog import (
+    LIVE_UPDATED_STATISTICAL_MODEL_ID,
     build_model_catalog,
     default_model_id,
     rank_model_ids,
@@ -64,10 +65,18 @@ def load_runtime(schedule_version: str):
         )
     except FileNotFoundError:
         training_df = loader.load_matches(processed=False)
+    live_training_df = loader.append_current_world_cup_results(
+        training_df,
+        stages=["Group Stage"],
+    )
     return {
         "historical_matches": training_df,
         "training_matches": training_df,
-        "catalog": build_model_catalog(training_df),
+        "live_training_matches": live_training_df,
+        "catalog": build_model_catalog(
+            training_df,
+            live_updated_matches=live_training_df,
+        ),
     }
 
 # Every new Streamlit session performs a fresh FIFA update. Widget reruns do not
@@ -111,8 +120,12 @@ def get_schedule_predictions(model_id: str) -> pd.DataFrame:
 # 5. Calculate accuracy on completed 2026 matches
 def calculate_accuracy(model_id=None):
     """Calculate model accuracy on completed 2026 World Cup matches"""
-    schedule = st.session_state.schedule_2026
     model_id = model_id or st.session_state.active_model_id
+    model = catalog.get(model_id, {})
+    if model.get("training_scope") == "live_2026_groups":
+        return None
+
+    schedule = st.session_state.schedule_2026
     predictions = get_schedule_predictions(model_id)
     
     # Check for both 'Completed' and 'completed' status
@@ -210,7 +223,18 @@ with st.sidebar:
         model_accuracy_stats[model_id] = stats
         model_accuracy[model_id] = stats["accuracy"] if stats else -1.0
 
-    model_ids = rank_model_ids(catalog, model_accuracy)
+    comparable_model_ids = [
+        model_id
+        for model_id, model in catalog.items()
+        if model.get("training_scope") != "live_2026_groups"
+    ]
+    model_ids = [
+        model_id
+        for model_id in rank_model_ids(catalog, model_accuracy)
+        if model_id in comparable_model_ids
+    ]
+    if LIVE_UPDATED_STATISTICAL_MODEL_ID in catalog:
+        model_ids.append(LIVE_UPDATED_STATISTICAL_MODEL_ID)
     model_rank = {
         model_id: position
         for position, model_id in enumerate(model_ids, start=1)
@@ -231,6 +255,8 @@ with st.sidebar:
         format_func=lambda model_id: (
             f"#{model_rank[model_id]} · {catalog[model_id]['label']} · "
             f"{model_accuracy[model_id]:.1f}%"
+            if model_accuracy_stats[model_id]
+            else f"Live · {catalog[model_id]['label']} · acurácia n/a"
         ),
         label_visibility="collapsed",
         key="active_model_id",
@@ -239,6 +265,10 @@ with st.sidebar:
     active_model = catalog[selected_model_id]
     st.session_state.active_model = active_model
     st.session_state.predictor = active_model["predictor"]
+    st.session_state.training_matches = active_model.get(
+        "training_matches",
+        runtime["training_matches"],
+    )
     st.session_state.schedule_predictions = get_schedule_predictions(
         selected_model_id
     )
@@ -251,6 +281,18 @@ with st.sidebar:
         result_col.metric(
             "Acertos",
             f"{accuracy_stats['correct']}/{accuracy_stats['total']}",
+        )
+    elif active_model.get("training_scope") == "live_2026_groups":
+        metric_col, result_col = st.columns([1.15, 1])
+        metric_col.metric("Acurácia 2026", "n/a")
+        result_col.metric(
+            "Jogos 2026 no treino",
+            active_model["metrics"].get("completed_2026_matches", 0),
+        )
+        st.warning(
+            "Este modelo foi atualizado com jogos já finalizados da Copa 2026. "
+            "Use para prever o mata-mata; não use a acurácia da fase de grupos "
+            "como comparação justa."
         )
 
     st.caption(active_model["description"])

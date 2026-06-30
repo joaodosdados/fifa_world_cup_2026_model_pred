@@ -77,6 +77,7 @@ class DataLoader:
     def load_current_world_cup_matches(
         self,
         schedule_path: str | Path | None = None,
+        stages: list[str] | None = None,
     ) -> pd.DataFrame:
         """
         Load completed 2026 World Cup matches from the dashboard schedule and
@@ -108,6 +109,8 @@ class DataLoader:
         completed = schedule[
             schedule["status"].astype(str).str.lower().eq("completed")
         ].copy()
+        if stages and "stage" in completed.columns:
+            completed = completed[completed["stage"].isin(stages)].copy()
         if completed.empty:
             return pd.DataFrame()
 
@@ -152,9 +155,10 @@ class DataLoader:
         self,
         matches: pd.DataFrame,
         schedule_path: str | Path | None = None,
+        stages: list[str] | None = None,
     ) -> pd.DataFrame:
         """Append completed 2026 matches to an existing training frame."""
-        current_matches = self.load_current_world_cup_matches(schedule_path)
+        current_matches = self.load_current_world_cup_matches(schedule_path, stages)
         if current_matches.empty:
             return matches.reset_index(drop=True)
 
